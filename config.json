@@ -1,0 +1,7 @@
+{
+    "chain":"./testnets/v0.1.0/stafi.json",
+    "key":"rule deliver thank width artefact parade update obtain winter mass earn royal",
+    "port":30333,
+    "telemetry-url":"ws://telemetry.polkadot.io:1024",
+    "validator":true
+}
