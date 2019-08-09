@@ -49,7 +49,6 @@ pub fn stafi_testnet_config_gensis() -> GenesisConfig {
         .map(|elt| elt.1)
         .chain(get_more_endowed())
         .collect();
-    // let identity_verifiers = get_identity_verifiers();
 
     testnet_genesis(
         initial_authorities, // authorities
@@ -60,12 +59,6 @@ pub fn stafi_testnet_config_gensis() -> GenesisConfig {
 
 /// Stafi testnet generator
 pub fn stafi_testnet_config() -> Result<ChainSpec, String> {
-    // let boot_nodes = vec![
-    //     "/ip4/157.230.218.41/tcp/30333/p2p/QmNYiKrVuztYuL42gs5kHLTqvKsmEnE3GvJQ8ewcvwtSVF".to_string(),
-    //     "/ip4/18.223.143.102/tcp/30333/p2p/QmdHoon1jbjeJfTdifknGefGrJHUNYgDDpnJBLLW1Pdt13".to_string(),
-    //     "/ip4/206.189.33.216/tcp/30333/p2p/QmNc7rakvWY1QL6LL9ssTfKTWUhHUfzMvygYdyMLpLQCR7".to_string(),
-    //     "/ip4/157.230.125.18/tcp/30333/p2p/QmTqM3sPbeaE7R2WaveJNg1Ma86dSFPTBHXxYSNjwcii1x".to_string(),
-    // ];
 
     Ok(ChainSpec::from_genesis(
         "Stafi Testnet",
