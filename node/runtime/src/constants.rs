@@ -1,20 +1,20 @@
 // Copyright 2019 Parity Technologies (UK) Ltd.
-// This file is part of Substrate.
+// This file is part of Stafi.
 
-// Substrate is free software: you can redistribute it and/or modify
+// Stafi is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-// Substrate is distributed in the hope that it will be useful,
+// Stafi is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with Substrate.  If not, see <http://www.gnu.org/licenses/>.
+// along with Stafi.  If not, see <http://www.gnu.org/licenses/>.
 
-//! A set of constant values used in substrate runtime.
+//! A set of constant values used in Stafi runtime.
 
 /// Money matters.
 pub mod currency {
@@ -27,7 +27,7 @@ pub mod currency {
 
 /// Time.
 pub mod time {
-	use stafi_primitives::Moment;
+	use stafi_primitives::{Moment, BlockNumber};
 
 	/// Since BABE is probabilistic this is the average expected block time that
 	/// we are targetting. Blocks will be produced at a minimum duration defined
@@ -46,17 +46,17 @@ pub mod time {
 
 	pub const SLOT_DURATION: Moment = 1650;
 
-	pub const EPOCH_DURATION_IN_BLOCKS: Moment = 10 * MINUTES;
-	pub const EPOCH_DURATION_IN_SLOTS: Moment = {
+	pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 10 * MINUTES;
+	pub const EPOCH_DURATION_IN_SLOTS: u64 = {
 		const SLOT_FILL_RATE: f64 = MILLISECS_PER_BLOCK as f64 / SLOT_DURATION as f64;
 
-		(EPOCH_DURATION_IN_BLOCKS as f64 * SLOT_FILL_RATE) as Moment
+		(EPOCH_DURATION_IN_BLOCKS as f64 * SLOT_FILL_RATE) as u64
 	};
 
 	// These time units are defined in number of blocks.
-	pub const MINUTES: Moment = 60 / SECS_PER_BLOCK;
-	pub const HOURS: Moment = MINUTES * 60;
-	pub const DAYS: Moment = HOURS * 24;
+	pub const MINUTES: BlockNumber = 60 / (SECS_PER_BLOCK as BlockNumber);
+	pub const HOURS: BlockNumber = MINUTES * 60;
+	pub const DAYS: BlockNumber = HOURS * 24;
 }
 
 // CRITICAL NOTE: The system module maintains two constants: a _maximum_ block weight and a

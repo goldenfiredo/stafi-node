@@ -109,12 +109,12 @@ fn main() {
         executable_name: "stafi",
         author: "Stafi Protocol",
         description: "Stafi Client Node",
-        support_url: "https://github.com/stafiprotocol/stafi/issues/new",
+        support_url: "https://github.com/stafiprotocol/stafi-node/issues/new",
     };
 
     let args = merge_args_with_config();
     if let Err(e) = stafi_cli::run(args, Exit, version) {
-        eprintln!("Error starting the node: {}\n\n{:?}", e, e);
+        eprintln!("Fatal error: {}\n\n{:?}", e, e);
         std::process::exit(1)
     }
 }

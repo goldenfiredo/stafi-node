@@ -19,8 +19,7 @@
 
 use stafi_service as service;
 
-
-use substrate_cli::{GetLogFilter, AugmentClap};
+use substrate_cli::{GetLogFilter, AugmentClap, parse_and_prepare, ParseAndPrepare};
 use substrate_cli as cli;
 pub use service::{Factory};
 
@@ -127,9 +126,8 @@ pub fn run<I, T, E>(args: I, exit: E, version: cli::VersionInfo) -> error::Resul
 	T: Into<std::ffi::OsString> + Clone,
 	E: IntoExit,
 {
-	let ret = cli::parse_and_execute::<service::Factory, CustomSubcommands, NoCustom, _, _, _, _, _>(
-		load_spec, &version, "substrate-node", args, exit,
-		|exit, _cli_args, _custom_args, config| {
+	match parse_and_prepare::<CustomSubcommands, NoCustom, _>(&version, "substrate-node", args) {
+		ParseAndPrepare::Run(cmd) => cmd.run(load_spec, exit, |exit, _cli_args, _custom_args, config| {
 			info!("{}", version.name);
 			info!("  version {}", config.full_version());
 			info!("  by {}, 2018-2019", version.author);
@@ -150,11 +148,14 @@ pub fn run<I, T, E>(args: I, exit: E, version: cli::VersionInfo) -> error::Resul
 					exit
 				),
 			}.map_err(|e| format!("{:?}", e))
-		}
-	);
+		}),
 
-	match &ret {
-		Ok(Some(CustomSubcommands::Factory(cli_args))) => {
+		ParseAndPrepare::BuildSpec(cmd) => cmd.run(load_spec),
+		ParseAndPrepare::ExportBlocks(cmd) => cmd.run::<service::Factory, _, _>(load_spec, exit),
+		ParseAndPrepare::ImportBlocks(cmd) => cmd.run::<service::Factory, _, _>(load_spec, exit),
+		ParseAndPrepare::PurgeChain(cmd) => cmd.run(load_spec),
+		ParseAndPrepare::RevertChain(cmd) => cmd.run::<service::Factory, _>(load_spec),
+		ParseAndPrepare::CustomCommand(CustomSubcommands::Factory(cli_args)) => {
 			let mut config = cli::create_config_with_db_path(
 				load_spec,
 				&cli_args.shared_params,
@@ -183,8 +184,7 @@ pub fn run<I, T, E>(args: I, exit: E, version: cli::VersionInfo) -> error::Resul
 			).map_err(|e| format!("Error in transaction factory: {}", e))?;
 
 			Ok(())
-		},
-		_ => ret.map_err(Into::into).map(|_| ())
+		}
 	}
 }
 
@@ -192,11 +192,11 @@ fn run_until_exit<T, C, E>(
 	mut runtime: Runtime,
 	service: T,
 	e: E,
-) -> error::Result<()>
-	where
-		T: Deref<Target=substrate_service::Service<C>> + Future<Item = (), Error = ()> + Send + 'static,
-		C: substrate_service::Components,
-		E: IntoExit,
+) -> error::Result<()> where
+	T: Deref<Target=substrate_service::Service<C>>,
+	T: Future<Item = (), Error = substrate_service::error::Error> + Send + 'static,
+	C: substrate_service::Components,
+	E: IntoExit,
 {
 	let (exit_send, exit) = exit_future::signal();
 
@@ -207,11 +207,17 @@ fn run_until_exit<T, C, E>(
 	// but we need to keep holding a reference to the global telemetry guard
 	let _telemetry = service.telemetry();
 
-	let _ = runtime.block_on(service.select(e.into_exit()));
+	let service_res = {
+		let exit = e.into_exit().map_err(|_| error::Error::Other("Exit future failed.".into()));
+		let service = service.map_err(|err| error::Error::Service(err));
+		let select = service.select(exit).map(|_| ()).map_err(|(err, _)| err);
+		runtime.block_on(select)
+	};
+
 	exit_send.fire();
 
 	// TODO [andre]: timeout this future #1318
 	let _ = runtime.shutdown_on_idle().wait();
 
-	Ok(())
+	service_res
 }

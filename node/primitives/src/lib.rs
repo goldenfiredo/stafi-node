@@ -25,7 +25,7 @@ use runtime_primitives::{
 };
 
 /// An index to a block.
-pub type BlockNumber = u64;
+pub type BlockNumber = u32;
 
 /// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
 pub type Signature = AnySignature;
@@ -44,18 +44,8 @@ pub type Balance = u128;
 /// Type used for expressing timestamp.
 pub type Moment = u64;
 
-/// The aura crypto scheme defined via the keypair type.
-#[cfg(feature = "std")]
-pub type AuraPair = primitives::ed25519::Pair;
-
-/// Identity of an Aura authority.
-pub type AuraId = primitives::ed25519::Public;
-
-/// Signature for an Aura authority.
-pub type AuraSignature = primitives::ed25519::Signature;
-
 /// Index of a transaction in the chain.
-pub type Index = u64;
+pub type Index = u32;
 
 /// A hash of some data used by the chain.
 pub type Hash = primitives::H256;
