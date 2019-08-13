@@ -21,24 +21,18 @@
 use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
 
-use parity_codec::Decode;
+use parity_codec::{Encode, Decode};
 use keyring::sr25519::Keyring;
-use stafi_primitives::Hash;
-use stafi_runtime::{Call, CheckedExtrinsic, UncheckedExtrinsic, BalancesCall};
-use primitives::sr25519;
-use primitives::crypto::Pair;
-use parity_codec::Encode;
-use sr_primitives::generic::Era;
-use sr_primitives::traits::{Block as BlockT, Header as HeaderT};
-use substrate_service::ServiceFactory;
+use stafi_runtime::{Call, CheckedExtrinsic, UncheckedExtrinsic, SignedExtra, BalancesCall, ExistentialDeposit};
+use primitives::{sr25519, crypto::Pair};
+use sr_primitives::{generic::Era, traits::{Block as BlockT, Header as HeaderT, SignedExtension}};
 use transaction_factory::RuntimeAdapter;
 use transaction_factory::modes::Mode;
-use crate::service;
 use inherents::InherentData;
 use timestamp;
 use finality_tracker;
 
-// TODO get via api: <timestamp::Module<T>>::minimum_period(). See #2587.
+// TODO get via api: <T as timestamp::Trait>::MinimumPeriod::get(). See #2587.
 const MINIMUM_PERIOD: u64 = 99;
 
 pub struct FactoryState<N> {
@@ -53,6 +47,18 @@ pub struct FactoryState<N> {
 }
 
 type Number = <<stafi_primitives::Block as BlockT>::Header as HeaderT>::Number;
+
+impl<Number> FactoryState<Number> {
+	fn build_extra(index: stafi_primitives::Index, phase: u64) -> stafi_runtime::SignedExtra {
+		(
+			system::CheckGenesis::new(),
+			system::CheckEra::from(Era::mortal(256, phase)),
+			system::CheckNonce::from(index),
+			system::CheckWeight::new(),
+			balances::TakeFees::from(0)
+		)
+	}
+}
 
 impl RuntimeAdapter for FactoryState<Number> {
 	type AccountId = stafi_primitives::AccountId;
@@ -125,23 +131,22 @@ impl RuntimeAdapter for FactoryState<Number> {
 		sender: &Self::AccountId,
 		key: &Self::Secret,
 		destination: &Self::AccountId,
-		amount: &Self::Number,
+		amount: &Self::Balance,
+		genesis_hash: &<Self::Block as BlockT>::Hash,
 		prior_block_hash: &<Self::Block as BlockT>::Hash,
 	) -> <Self::Block as BlockT>::Extrinsic {
 		let index = self.extract_index(&sender, prior_block_hash);
 		let phase = self.extract_phase(*prior_block_hash);
 
-		sign::<service::Factory, Self>(CheckedExtrinsic {
-			signed: Some((sender.clone(), index)),
+		sign::<Self>(CheckedExtrinsic {
+			signed: Some((sender.clone(), Self::build_extra(index, phase))),
 			function: Call::Balances(
 				BalancesCall::transfer(
-					indices::address::Address::Id(
-						destination.clone().into()
-					),
+					indices::address::Address::Id(destination.clone().into()),
 					(*amount).into()
 				)
 			)
-		}, key, &prior_block_hash, phase)
+		}, key, (genesis_hash.clone(), prior_block_hash.clone(), (), (), ()))
 	}
 
 	fn inherent_extrinsics(&self) -> InherentData {
@@ -155,9 +160,9 @@ impl RuntimeAdapter for FactoryState<Number> {
 		inherent
 	}
 
-	fn minimum_balance() -> Self::Number {
+	fn minimum_balance() -> Self::Balance {
 		// TODO get correct amount via api. See #2587.
-		1337
+		ExistentialDeposit::get()
 	}
 
 	fn master_account_id() -> Self::AccountId {
@@ -226,16 +231,14 @@ fn gen_seed_bytes(seed: u64) -> [u8; 32] {
 
 /// Creates an `UncheckedExtrinsic` containing the appropriate signature for
 /// a `CheckedExtrinsics`.
-fn sign<F: ServiceFactory, RA: RuntimeAdapter>(
+fn sign<RA: RuntimeAdapter>(
 	xt: CheckedExtrinsic,
 	key: &sr25519::Pair,
-	prior_block_hash: &Hash,
-	phase: u64,
+	additional_signed: <SignedExtra as SignedExtension>::AdditionalSigned,
 ) -> <RA::Block as BlockT>::Extrinsic {
 	let s = match xt.signed {
-		Some((signed, index)) => {
-			let era = Era::mortal(256, phase);
-			let payload = (index.into(), xt.function, era, prior_block_hash);
+		Some((signed, extra)) => {
+			let payload = (xt.function, extra.clone(), additional_signed);
 			let signature = payload.using_encoded(|b| {
 				if b.len() > 256 {
 					key.sign(&sr_io::blake2_256(b))
@@ -244,8 +247,8 @@ fn sign<F: ServiceFactory, RA: RuntimeAdapter>(
 				}
 			}).into();
 			UncheckedExtrinsic {
-				signature: Some((indices::address::Address::Id(signed), signature, payload.0, era)),
-				function: payload.1,
+				signature: Some((indices::address::Address::Id(signed), signature, extra)),
+				function: payload.0,
 			}
 		}
 		None => UncheckedExtrinsic {

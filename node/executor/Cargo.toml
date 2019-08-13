@@ -6,29 +6,29 @@ edition = "2018"
 
 [dependencies]
 trie-root = "0.14.0"
-parity-codec = "4.1.1"
-runtime_io = { package = "sr-io", git = "https://github.com/paritytech/substrate" }
-state_machine = { package = "substrate-state-machine", git = "https://github.com/paritytech/substrate" }
-substrate-executor = { git = "https://github.com/paritytech/substrate" }
-primitives = { package = "substrate-primitives", git = "https://github.com/paritytech/substrate" }
-trie = { package = "substrate-trie", git = "https://github.com/paritytech/substrate" }
+parity-scale-codec = "1.0.0"
+runtime_io = { package = "sr-io", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+state_machine = { package = "substrate-state-machine", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+substrate-executor = { git = "https://github.com/stafiprotocol/stafi-blockchain" }
+primitives = { package = "substrate-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+trie = { package = "substrate-trie", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 stafi-primitives = { path = "../primitives" }
 stafi-runtime = { path = "../runtime" }
 
 [dev-dependencies]
-test-client = { package = "substrate-test-client", git = "https://github.com/paritytech/substrate" }
-keyring = { package = "substrate-keyring", git = "https://github.com/paritytech/substrate" }
-runtime_primitives = { package = "sr-primitives", git = "https://github.com/paritytech/substrate" }
-runtime_support = { package = "srml-support", git = "https://github.com/paritytech/substrate" }
-balances = { package = "srml-balances", git = "https://github.com/paritytech/substrate" }
-session = { package = "srml-session", git = "https://github.com/paritytech/substrate" }
-staking = { package = "srml-staking", git = "https://github.com/paritytech/substrate" }
-system = { package = "srml-system", git = "https://github.com/paritytech/substrate" }
-timestamp = { package = "srml-timestamp", git = "https://github.com/paritytech/substrate" }
-treasury = { package = "srml-treasury", git = "https://github.com/paritytech/substrate" }
-contracts = { package = "srml-contracts", git = "https://github.com/paritytech/substrate" }
-grandpa = { package = "srml-grandpa", git = "https://github.com/paritytech/substrate" }
-indices = { package = "srml-indices", git = "https://github.com/paritytech/substrate" }
+test-client = { package = "substrate-test-client", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+keyring = { package = "substrate-keyring", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+runtime_primitives = { package = "sr-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+runtime_support = { package = "srml-support", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+balances = { package = "srml-balances", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+session = { package = "srml-session", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+staking = { package = "srml-staking", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+system = { package = "srml-system", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+timestamp = { package = "srml-timestamp", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+treasury = { package = "srml-treasury", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+contracts = { package = "srml-contracts", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+grandpa = { package = "srml-grandpa", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+indices = { package = "srml-indices", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 wabt = "~0.7.4"
 
 [features]

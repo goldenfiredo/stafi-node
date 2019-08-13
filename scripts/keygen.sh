@@ -15,11 +15,14 @@ stash_address=$(subkey inspect "${mnemonic}"//stash | grep -o ': .*' | sed '2!d'
 controller_pubkey=$(subkey inspect "${mnemonic}"//controller | grep -o ': .*' | sed '1!d' | tr -d ': ')
 controller_address=$(subkey inspect "${mnemonic}"//controller | grep -o ': .*' | sed '2!d' | tr -d ': ')
 
-aura_pubkey=$(subkey -e inspect "${mnemonic}"//aura | grep -o ': .*' | sed '1!d' | tr -d ': ')
-aura_address=$(subkey -e inspect "${mnemonic}"//aura | grep -o ': .*' | sed '2!d' | tr -d ': ')
-
 grandpa_pubkey=$(subkey -e inspect "${mnemonic}"//grandpa | grep -o ': .*' | sed '1!d' | tr -d ': ')
 grandpa_address=$(subkey -e inspect "${mnemonic}"//grandpa | grep -o ': .*' | sed '2!d' | tr -d ': ')
+
+babe_pubkey=$(subkey -e inspect "${mnemonic}"//babe | grep -o ': .*' | sed '1!d' | tr -d ': ')
+babe_address=$(subkey -e inspect "${mnemonic}"//babe | grep -o ': .*' | sed '2!d' | tr -d ': ')
+
+imonline_pubkey=$(subkey -e inspect "${mnemonic}"//imonline | grep -o ': .*' | sed '1!d' | tr -d ': ')
+imonline_address=$(subkey -e inspect "${mnemonic}"//imonline | grep -o ': .*' | sed '2!d' | tr -d ': ')
 
 echo ""
 echo "*********** SAVE THIS MNEMONIC FOR FUTURE USE OR RISK LOSING ACCESS TO ANY FUNDS ***********"
@@ -41,15 +44,20 @@ echo ""
 echo "Controller pubkey: ${controller_pubkey}"
 echo "Controller address: ${controller_address}"
 echo ""
-echo "*********** ED25519 AUTHORITY ACCOUNT FOR CONTROLLING AN AURA NODE OR GENERAL USE ***********"
-echo ""
-echo "Aura pubkey: ${aura_pubkey}"
-echo "Aura address: ${aura_address}"
-echo ""
 echo "*********** ED25519 AUTHORITY ACCOUNT FOR CONTROLLING A GRANDPA NODE OR GENERAL USE ***********"
 echo ""
 echo "GRANDPA pubkey: ${grandpa_pubkey}"
 echo "GRANDPA address: ${grandpa_address}"
+echo ""
+echo "*********** ED25519 AUTHORITY ACCOUNT FOR CONTROLLING A BABE NODE OR GENERAL USE ***********"
+echo ""
+echo "Babe pubkey: ${babe_pubkey}"
+echo "Babe address: ${babe_address}"
+echo ""
+echo "*********** ED25519 AUTHORITY ACCOUNT FOR CONTROLLING AN IMONLINE NODE OR GENERAL USE ***********"
+echo ""
+echo "Imonline pubkey: ${imonline_pubkey}"
+echo "Imonline address: ${imonline_address}"
 echo ""
 echo ""
 
@@ -58,7 +66,9 @@ echo " // "${stash_address}""
 echo " hex![\"${stash_pubkey}\"].unchecked_into(), "
 echo " // "${controller_address}""
 echo " hex![\"${controller_pubkey}\"].unchecked_into(), "
-echo " // "${aura_address}""
-echo " hex![\"${aura_pubkey}\"].unchecked_into(), "
 echo " // "${grandpa_address}""
 echo " hex![\"${grandpa_pubkey}\"].unchecked_into(), "
+echo " // "${babe_address}""
+echo " hex![\"${babe_pubkey}\"].unchecked_into(), "
+echo " // "${imonline_address}""
+echo " hex![\"${imonline_pubkey}\"].unchecked_into(), "
