@@ -36,8 +36,8 @@ impl Default for ChainSpec {
 impl ChainSpec {
 	pub(crate) fn load(self) -> Result<service::chain_spec::ChainSpec, String> {
 		Ok(match self {
-			ChainSpec::StafiTestnetConfiguration => service::chain_spec::stafi_testnet_config()?,
-			ChainSpec::Stafi => service::chain_spec::stafi_config(),
+			ChainSpec::StafiTestnetConfiguration => service::chain_spec::stafi_testnet_config(),
+			ChainSpec::Stafi => service::chain_spec::stafi_config()?,
 			ChainSpec::Development => service::chain_spec::development_config(),
 			ChainSpec::LocalTestnet => service::chain_spec::local_testnet_config(),
 		})

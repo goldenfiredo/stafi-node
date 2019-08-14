@@ -22,7 +22,7 @@ use stafi_runtime::{
 	SessionConfig,	SessionKeys, StakerStatus, StakingConfig, SudoConfig, SystemConfig,
 	TechnicalCommitteeConfig, WASM_BINARY,
 };
-use stafi_runtime::constants::{currency::*};
+use stafi_runtime::constants::{time::*, currency::*};
 pub use stafi_runtime::GenesisConfig;
 use substrate_service;
 use substrate_telemetry::TelemetryEndpoints;
@@ -37,11 +37,8 @@ const DEFAULT_PROTOCOL_ID: &str = "sfi";
 /// Specialized `ChainSpec`.
 pub type ChainSpec = substrate_service::ChainSpec<GenesisConfig>;
 
-pub fn stafi_config() -> ChainSpec {
-    match ChainSpec::from_json_file(std::path::PathBuf::from("testnets/v0.1.0/stafi.json")) {
-        Ok(spec) => spec,
-        Err(e) => panic!(e),
-    }
+pub fn stafi_config() -> Result<ChainSpec, String> {
+	ChainSpec::from_json_bytes(&include_bytes!("../../../testnets/v0.1.0/stafi.json")[..])
 }
 
 pub fn stafi_testnet_config_gensis() -> GenesisConfig {
@@ -54,18 +51,16 @@ pub fn stafi_testnet_config_gensis() -> GenesisConfig {
         .chain(get_more_endowed())
         .collect();
 
-    testnet_genesis(
-        initial_authorities, // authorities
+	testnet_genesis(
+        initial_authorities,
         root_key,
-        Some(endowed_accounts),
-		false
+        Some(endowed_accounts)
     )
 }
 
 /// Stafi testnet generator
-pub fn stafi_testnet_config() -> Result<ChainSpec, String> {
-
-    Ok(ChainSpec::from_genesis(
+pub fn stafi_testnet_config() -> ChainSpec {
+    ChainSpec::from_genesis(
         "Stafi Testnet",
         "stafi_testnet",
         stafi_testnet_config_gensis,
@@ -73,8 +68,7 @@ pub fn stafi_testnet_config() -> Result<ChainSpec, String> {
         Some(TelemetryEndpoints::new(vec![(STAGING_TELEMETRY_URL.to_string(), 0)])),
         Some(DEFAULT_PROTOCOL_ID),
         None,
-        None
-    ))
+        None)
 }
 
 fn session_keys(grandpa: GrandpaId, babe: BabeId, im_online: ImOnlineId) -> SessionKeys {
@@ -105,7 +99,6 @@ pub fn testnet_genesis(
     initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId)>,
     root_key: AccountId,
     endowed_accounts: Option<Vec<AccountId>>,
-	enable_println: bool,
 ) -> GenesisConfig {
     let endowed_accounts: Vec<AccountId> = endowed_accounts.unwrap_or_else(|| {
 		vec![
@@ -127,19 +120,22 @@ pub fn testnet_genesis(
     const ENDOWMENT: Balance = 10_000_000 * DOLLARS;
     const STASH: Balance = 100 * DOLLARS;
 
-    let desired_seats = (endowed_accounts.len() / 2 - initial_authorities.len()) as u32;
-
     GenesisConfig {
         system: Some(SystemConfig {
 			code: WASM_BINARY.to_vec(),
 			changes_trie_config: Default::default(),
 		}),
-		indices: Some(IndicesConfig {
-			ids: endowed_accounts.clone(),
-		}),
 		balances: Some(BalancesConfig {
-			balances: endowed_accounts.iter().map(|k| (k.clone(), ENDOWMENT)).collect(),
+			balances: endowed_accounts.iter().cloned()
+				.map(|k| (k, ENDOWMENT))
+				.chain(initial_authorities.iter().map(|x| (x.0.clone(), STASH)))
+				.collect(),
 			vesting: vec![],
+		}),
+		indices: Some(IndicesConfig {
+			ids: endowed_accounts.iter().cloned()
+				.chain(initial_authorities.iter().map(|x| x.0.clone()))
+				.collect::<Vec<_>>(),
 		}),
 		session: Some(SessionConfig {
 			keys: initial_authorities.iter().map(|x| {
@@ -148,10 +144,10 @@ pub fn testnet_genesis(
 		}),
 		staking: Some(StakingConfig {
 			current_era: 0,
-			minimum_validator_count: 1,
-			validator_count: 2,
-			offline_slash: Perbill::zero(),
-			offline_slash_grace: 0,
+			offline_slash: Perbill::from_parts(1_000_000),
+			validator_count: 7,
+			offline_slash_grace: 4,
+			minimum_validator_count: 4,
 			stakers: initial_authorities.iter().map(|x| {
 				(x.0.clone(), x.1.clone(), STASH, StakerStatus::Validator)
 			}).collect(),
@@ -168,18 +164,13 @@ pub fn testnet_genesis(
 			phantom: Default::default(),
 		}),
 		elections: Some(ElectionsConfig {
-			members: endowed_accounts.iter()
-				.filter(|&endowed| initial_authorities.iter().find(|&(_, controller, ..)| controller == endowed).is_none())
-				.map(|a| (a.clone(), 1000000)).collect(),
-			presentation_duration: 10,
-			term_duration: 1000000,
-			desired_seats: desired_seats,
+			members: vec![],
+			presentation_duration: 1 * DAYS,
+			term_duration: 28 * DAYS,
+			desired_seats: 0,
 		}),
 		contracts: Some(ContractsConfig {
-			current_schedule: contracts::Schedule {
-				enable_println, // this should only be enabled on development chains
-				..Default::default()
-			},
+			current_schedule: Default::default(),
 			gas_price: 1 * MILLICENTS,
 		}),
 		sudo: Some(SudoConfig {
@@ -204,8 +195,7 @@ fn development_config_genesis() -> GenesisConfig {
             get_authority_keys_from_seed("Alice"),
         ],
         get_from_seed::<AccountId>("Alice"),
-        None,
-		true
+        None
     )
 }
 
@@ -229,8 +219,7 @@ fn local_testnet_genesis() -> GenesisConfig {
             get_authority_keys_from_seed("Bob"),
         ],
         get_from_seed::<AccountId>("Alice"),
-        None,
-		false
+        None
     )
 }
 
