@@ -35,6 +35,7 @@ finality_tracker = { package = "srml-finality-tracker", git = "https://github.co
 contracts = { package = "srml-contracts", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 system = { package = "srml-system", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 balances = { package = "srml-balances", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+serde_json = "1.0"
 
 stafi-service = { path = "../service" }
 stafi-primitives = { path = "../primitives" }

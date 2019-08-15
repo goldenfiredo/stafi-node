@@ -16,41 +16,41 @@ use stafi_service as service;
 /// The chain specification option.
 #[derive(Clone, Debug, PartialEq)]
 pub enum ChainSpec {
-	/// Whatever the current runtime is, with just Alice as an auth.
-	Development,
-	/// Whatever the current runtime is, with simple Alice/Bob auths.
-	LocalTestnet,
-	/// Stafi testnet.
-	Stafi,
-	/// Stafi testnet configuration (intermediate build process)
-	StafiTestnetConfiguration,
+    /// Whatever the current runtime is, with just Alice as an auth.
+    Development,
+    /// Whatever the current runtime is, with simple Alice/Bob auths.
+    LocalTestnet,
+    /// Stafi testnet.
+    Stafi,
+    /// Stafi testnet configuration (intermediate build process)
+    StafiTestnetConfiguration,
 }
 
 impl Default for ChainSpec {
-	fn default() -> Self {
-		ChainSpec::Development
-	}
+    fn default() -> Self {
+        ChainSpec::Development
+    }
 }
 
 /// Get a chain config from a spec setting.
 impl ChainSpec {
-	pub(crate) fn load(self) -> Result<service::chain_spec::ChainSpec, String> {
-		Ok(match self {
-			ChainSpec::StafiTestnetConfiguration => service::chain_spec::stafi_testnet_config(),
-			ChainSpec::Stafi => service::chain_spec::stafi_config()?,
-			ChainSpec::Development => service::chain_spec::development_config(),
-			ChainSpec::LocalTestnet => service::chain_spec::local_testnet_config(),
-		})
-	}
+    pub(crate) fn load(self) -> Result<service::chain_spec::ChainSpec, String> {
+        Ok(match self {
+            ChainSpec::StafiTestnetConfiguration => service::chain_spec::stafi_testnet_config(),
+            ChainSpec::Stafi => service::chain_spec::stafi_config()?,
+            ChainSpec::Development => service::chain_spec::development_config(),
+            ChainSpec::LocalTestnet => service::chain_spec::local_testnet_config(),
+        })
+    }
 
-	pub(crate) fn from(s: &str) -> Option<Self> {
-		match s {
-			"dev" => Some(ChainSpec::Development),
-			"local" => Some(ChainSpec::LocalTestnet),
-			"test" => Some(ChainSpec::StafiTestnetConfiguration),
-			"stafi" => Some(ChainSpec::Stafi),
-			"" => Some(ChainSpec::default()),
-			_ => None,
-		}
-	}
+    pub(crate) fn from(s: &str) -> Option<Self> {
+        match s {
+            "dev" => Some(ChainSpec::Development),
+            "local" => Some(ChainSpec::LocalTestnet),
+            "test" => Some(ChainSpec::StafiTestnetConfiguration),
+            "stafi" => Some(ChainSpec::Stafi),
+            "" => Some(ChainSpec::default()),
+            _ => None,
+        }
+    }
 }

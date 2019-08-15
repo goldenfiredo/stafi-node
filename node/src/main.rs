@@ -15,13 +15,11 @@
 
 extern crate ctrlc;
 extern crate futures;
-extern crate serde_json as json;
 extern crate stafi_cli as cli;
 
 use cli::VersionInfo;
 use futures::sync::oneshot;
 use futures::{future, Future};
-use json::Value;
 use std::cell::RefCell;
 
 // handles ctrl-c
@@ -48,59 +46,6 @@ impl stafi_cli::IntoExit for Exit {
     }
 }
 
-fn merge_args_with_config() -> Box<dyn Iterator<Item = String>> {
-    let args: Vec<String> = std::env::args().collect();
-    let mut merged_args: Vec<String> = Vec::new();
-    let mut config_paths: Vec<&str> = Vec::new();
-    let mut config_index: usize = args.len();
-    for (i, arg) in args.iter().enumerate() {
-        if i == config_index + 1 {
-            config_paths.push(arg);
-            continue;
-        }
-        if arg == "-c" || arg == "--config" {
-            config_index = i;
-            continue;
-        }
-        merged_args.push(arg.to_owned());
-    }
-
-    for config_path in config_paths {
-        let contents =
-            std::fs::read_to_string(config_path).expect("Something went wrong reading the file");
-
-        if let Ok(parsed) = json::from_str(&contents) {
-            if let json::Value::Object(a) = parsed {
-                for (name, value) in a {
-                    let result: Result<Option<String>, String> = match value {
-                        Value::String(s) => Ok(Some(s.to_owned())),
-                        Value::Bool(b) => Ok(None),
-                        Value::Number(n) => Ok(Some(n.to_string())),
-                        _ => Err(format!("Unexpected config for {}", name).to_owned()),
-                    };
-                    match result {
-                        Ok(s) => {
-                            if name.starts_with("--") {
-                                merged_args.push(name.to_owned());
-                            } else {
-                                merged_args.push(("--".to_owned() + &name).to_owned());
-                            }
-                            if let Some(s) = s {
-                                merged_args.push(s);
-                            }
-                        }
-                        Err(s) => {
-                            println!("{}", s);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Box::new(merged_args.into_iter())
-}
-
 fn main() {
     let version = VersionInfo {
         name: "Stafi",
@@ -112,7 +57,7 @@ fn main() {
         support_url: "https://github.com/stafiprotocol/stafi-node/issues/new",
     };
 
-    let args = merge_args_with_config();
+    let args = ::std::env::args();
     if let Err(e) = stafi_cli::run(args, Exit, version) {
         eprintln!("Fatal error: {}\n\n{:?}", e, e);
         std::process::exit(1)
