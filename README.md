@@ -76,7 +76,7 @@ If you use the `--key` flag, ensure that either it is a 32-byte hex string or pr
 
 ### Stafi
 
-* [Voting](https://github.com/stafiprotocol/stafi-node/tree/master/modules/stafi-voting)
+* [Voting](https://github.com/stafiprotocol/stafi-node/tree/master/node/modules/stafi-voting)
 
 ### SRML
 * [System](https://github.com/paritytech/substrate/tree/master/srml/system)
