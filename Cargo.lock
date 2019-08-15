@@ -3084,26 +3084,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "srml-aura"
-version = "2.0.0"
-source = "git+https://github.com/stafiprotocol/stafi-blockchain#ad2c9126eb4c8ab908d36341bb97bab00fa94cf9"
-dependencies = [
- "parity-scale-codec 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 1.0.98 (registry+https://github.com/rust-lang/crates.io-index)",
- "sr-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "sr-std 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "srml-session 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "srml-staking 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "srml-support 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "srml-system 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "srml-timestamp 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-application-crypto 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-consensus-aura-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-inherents 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
-]
-
-[[package]]
 name = "srml-authorship"
 version = "0.1.0"
 source = "git+https://github.com/stafiprotocol/stafi-blockchain#ad2c9126eb4c8ab908d36341bb97bab00fa94cf9"
@@ -3499,8 +3479,6 @@ dependencies = [
  "substrate-basic-authorship 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-cli 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-client 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-consensus-aura 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-consensus-aura-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-finality-grandpa 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-finality-grandpa-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-inherents 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
@@ -3655,6 +3633,7 @@ dependencies = [
  "srml-balances 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "srml-support 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "srml-system 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "stafi-primitives 0.1.0",
  "substrate-keyring 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
 ]
@@ -3850,45 +3829,6 @@ dependencies = [
  "substrate-state-db 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-state-machine 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-trie 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
-]
-
-[[package]]
-name = "substrate-consensus-aura"
-version = "2.0.0"
-source = "git+https://github.com/stafiprotocol/stafi-blockchain#ad2c9126eb4c8ab908d36341bb97bab00fa94cf9"
-dependencies = [
- "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures-preview 0.3.0-alpha.17 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures-timer 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "parity-scale-codec 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "sr-io 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "sr-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "sr-version 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "srml-aura 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "srml-support 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-application-crypto 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-client 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-consensus-aura-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-consensus-common 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-consensus-slots 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-inherents 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-keystore 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-telemetry 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
-]
-
-[[package]]
-name = "substrate-consensus-aura-primitives"
-version = "2.0.0"
-source = "git+https://github.com/stafiprotocol/stafi-blockchain#ad2c9126eb4c8ab908d36341bb97bab00fa94cf9"
-dependencies = [
- "parity-scale-codec 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "sr-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "sr-std 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-application-crypto 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
- "substrate-client 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
 ]
 
 [[package]]
@@ -5612,7 +5552,6 @@ dependencies = [
 "checksum sr-sandbox 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum sr-std 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum sr-version 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
-"checksum srml-aura 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum srml-authorship 0.1.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum srml-babe 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum srml-balances 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
@@ -5652,8 +5591,6 @@ dependencies = [
 "checksum substrate-cli 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum substrate-client 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum substrate-client-db 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
-"checksum substrate-consensus-aura 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
-"checksum substrate-consensus-aura-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum substrate-consensus-babe 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum substrate-consensus-babe-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"
 "checksum substrate-consensus-common 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)" = "<none>"

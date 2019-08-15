@@ -20,8 +20,6 @@ substrate-basic-authorship = { git = "https://github.com/stafiprotocol/stafi-blo
 substrate-service = { git = "https://github.com/stafiprotocol/stafi-blockchain" }
 transaction_pool = { package = "substrate-transaction-pool", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 network = { package = "substrate-network", git = "https://github.com/stafiprotocol/stafi-blockchain" }
-aura = { package = "substrate-consensus-aura", git = "https://github.com/stafiprotocol/stafi-blockchain" }
-aura_primitives = { package = "substrate-consensus-aura-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 grandpa = { package = "substrate-finality-grandpa", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 grandpa_primitives = { package = "substrate-finality-grandpa-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 sr-primitives = { git = "https://github.com/stafiprotocol/stafi-blockchain" }

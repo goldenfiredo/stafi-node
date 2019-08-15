@@ -27,7 +27,7 @@ members = [
 	"node/executor",
 	"node/primitives",
 	"node/service",
-	"modules/stafi-voting",
+	"node/modules/stafi-voting",
 ]
 
 [badges]

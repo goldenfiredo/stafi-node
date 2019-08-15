@@ -29,16 +29,17 @@ extern crate serde_derive;
 
 extern crate parity_codec as codec;
 extern crate substrate_primitives as primitives;
-#[cfg_attr(not(feature = "std"), macro_use)]
 extern crate sr_std as rstd;
 extern crate srml_support as runtime_support;
 extern crate sr_primitives as runtime_primitives;
 extern crate sr_io as runtime_io;
 extern crate srml_system as system;
+extern crate stafi_primitives;
 
 pub mod voting;
 pub use voting::{Module, Trait, RawEvent, Event};
 pub use voting::{VoteStage, VoteType, TallyType, VoteRecord, VoteData};
+
 
 #[cfg(test)]
 mod tests {
@@ -53,8 +54,14 @@ mod tests {
 	// The testing primitives are very useful for avoiding having to work with signatures
 	// or public keys. `u64` is used as the `AccountId` and no `Signature`s are requried.
 	use runtime_primitives::{
+		Perbill,
 		traits::{BlakeTwo256, Hash, IdentityLookup},
 		testing::{Header}
+	};
+
+	use stafi_primitives::{
+		AccountId, BlockNumber, Hash, Index,
+		Moment, Signature,
 	};
 
 	use runtime_support::{
@@ -73,21 +80,31 @@ mod tests {
 		}
 	}
 
-	// For testing the module, we construct most of a mock runtime. This means
-	// first constructing a configuration type (`Test`) which `impl`s each of the
-	// configuration traits of modules we want to use.
-	#[derive(Clone, Eq, PartialEq)]
+	#[derive(Clone, PartialEq, Eq, Debug)]
 	pub struct Test;
+
+	parameter_types! {
+		pub const BlockHashCount: BlockNumber = 250;
+		pub const MaximumBlockWeight: u32 = 1024;
+		pub const MaximumBlockLength: u32 = 2 * 1024;
+		pub const AvailableBlockRatio: Perbill = Perbill::one();
+	}
+
 	impl system::Trait for Test {
 		type Origin = Origin;
-		type Index = u64;
-		type BlockNumber = u64;
-		type Hash = H256;
+		type Index = Index;
+		type BlockNumber = BlockNumber;
+		type Hash = Hash;
 		type Hashing = BlakeTwo256;
-		type AccountId = u64;
+		type AccountId = AccountId;
 		type Lookup = IdentityLookup<Self::AccountId>;
 		type Header = Header;
 		type Event = Event;
+		type WeightMultiplierUpdate = ();
+		type BlockHashCount = BlockHashCount;
+		type MaximumBlockWeight = MaximumBlockWeight;
+		type MaximumBlockLength = MaximumBlockLength;
+		type AvailableBlockRatio = AvailableBlockRatio;
 	}
 
 	impl Trait for Test {
