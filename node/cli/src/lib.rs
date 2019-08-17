@@ -30,11 +30,11 @@ mod factory_impl;
 
 use crate::factory_impl::FactoryState;
 use chain_spec::ChainSpec;
-pub use cli::{ExecutionStrategyParam, IntoExit, NoCustom, SharedParams, VersionInfo};
+pub use cli::{ExecutionStrategyParam, IntoExit, NoCustom, SharedParams, VersionInfo, CoreParams};
 use client::ExecutionStrategies;
 use log::info;
 use std::ops::Deref;
-use structopt::{clap::App, StructOpt};
+use structopt::{clap::App, StructOpt, clap::AppSettings};
 use substrate_service::{Roles as ServiceRoles, ServiceFactory};
 use tokio::prelude::Future;
 use tokio::runtime::{Builder as RuntimeBuilder, Runtime};
@@ -117,7 +117,7 @@ impl AugmentClap for FactoryCmd {
 
 #[derive(Clone, Debug, StructOpt)]
 struct StafiCustom {
-    #[structopt(short = "c", long = "config", help = "Configuration file path.")]
+    #[structopt(short = "c", long = "config", help = "Configuration file path.", takes_value = true)]
     config: Option<String>,
 }
 
@@ -184,13 +184,19 @@ where
 {
     let args_vec: Vec<_> = args.into_iter().collect();
     let mut args_vec_copy: Vec<_> = args_vec.clone().into_iter().filter_map(|x| x.into().into_string().ok()).collect();
-    if let Ok(custom_args) = StafiCustom::from_iter_safe(args_vec) {
-		if let Some(config_path) = custom_args.config {
-			if let Some(args_from_file) = read_args_from_config(&config_path) {
-				args_vec_copy.extend_from_slice(&args_from_file[..]);
-			}
-		}
-	}
+    let matches = CoreParams::<CustomSubcommands, StafiCustom>::clap()
+		.setting(AppSettings::GlobalVersion)
+		.setting(AppSettings::ArgsNegateSubcommands)
+		.setting(AppSettings::SubcommandsNegateReqs)
+		.get_matches_from_safe(args_vec);
+    if let Ok(stafi_matches) = matches {
+        let custom_args = StafiCustom::from_clap(&stafi_matches);
+        if let Some(config_path) = custom_args.config {
+            if let Some(args_from_file) = read_args_from_config(&config_path) {
+                args_vec_copy.extend_from_slice(&args_from_file[..]);
+            }
+        }
+    }    
 
     match parse_and_prepare::<CustomSubcommands, StafiCustom, _>(&version, "substrate-node", args_vec_copy) {
         ParseAndPrepare::Run(cmd) => {
