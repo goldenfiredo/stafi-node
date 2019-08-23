@@ -45,21 +45,21 @@ mod tests {
 	use keyring::{AccountKeyring, Ed25519Keyring, Sr25519Keyring};
 	use runtime_support::{Hashable, StorageValue, StorageMap, assert_eq_error_rate, traits::Currency};
 	use state_machine::{CodeExecutor, Externalities, TestExternalities as CoreTestExternalities};
-	use primitives::{ twox_128, blake2_256, Blake2Hasher, ChangesTrieConfiguration, NeverNativeValue, NativeOrEncoded};
-	use node_primitives::{Hash, BlockNumber, AccountId, Balance, Index};
+	use primitives::{twox_128, blake2_256, Blake2Hasher, ChangesTrieConfiguration, NeverNativeValue, NativeOrEncoded};
+	use stafi_primitives::{Hash, BlockNumber, AccountId, Balance, Index};
 	use sr_primitives::traits::{Header as HeaderT, Hash as HashT, Convert};
 	use sr_primitives::{generic::Era, ApplyOutcome, ApplyError, ApplyResult, Perbill};
 	use sr_primitives::weights::{WeightMultiplier, GetDispatchInfo};
 	use contracts::ContractAddressFor;
 	use system::{EventRecord, Phase};
-	use node_runtime::{
+	use stafi_runtime::{
 		Header, Block, UncheckedExtrinsic, CheckedExtrinsic, Call, Runtime, Balances, BuildStorage,
 		GenesisConfig, BalancesConfig, SessionConfig, StakingConfig, System, SystemConfig,
 		GrandpaConfig, IndicesConfig, ContractsConfig, Event, SessionKeys, SignedExtra,
-		TransferFee, TransactionBaseFee, TransactionByteFee,
+		TransferFee, TransactionBaseFee, TransactionByteFee
 	};
-	use node_runtime::constants::currency::*;
-	use node_runtime::impls::WeightToFee;
+	use stafi_runtime::constants::currency::*;
+	use stafi_runtime::impls::WeightToFee;
 	use wabt;
 	use primitives::map;
 
@@ -69,16 +69,18 @@ mod tests {
 	/// making the binary slimmer. There is a convention to use compact version of the runtime
 	/// as canonical. This is why `native_executor_instance` also uses the compact version of the
 	/// runtime.
-	const COMPACT_CODE: &[u8] = node_runtime::WASM_BINARY;
+	const COMPACT_CODE: &[u8] = stafi_runtime::WASM_BINARY;
 
 	/// The wasm runtime binary which hasn't undergone the compacting process.
 	///
 	/// The idea here is to pass it as the current runtime code to the executor so the executor will
 	/// have to execute provided wasm code instead of the native equivalent. This trick is used to
 	/// test code paths that differ between native and wasm versions.
-	const BLOATY_CODE: &[u8] = node_runtime::WASM_BINARY_BLOATY;
+	const BLOATY_CODE: &[u8] = stafi_runtime::WASM_BINARY_BLOATY;
 
 	const GENESIS_HASH: [u8; 32] = [69u8; 32];
+
+	const VERSION: u32 = stafi_runtime::VERSION.spec_version;
 
 	type TestExternalities<H> = CoreTestExternalities<H, u64>;
 
@@ -123,7 +125,7 @@ mod tests {
 	fn sign(xt: CheckedExtrinsic) -> UncheckedExtrinsic {
 		match xt.signed {
 			Some((signed, extra)) => {
-				let payload = (xt.function, extra.clone(), GENESIS_HASH, GENESIS_HASH);
+				let payload = (xt.function, extra.clone(), VERSION, GENESIS_HASH, GENESIS_HASH);
 				let key = AccountKeyring::from_public(&signed).unwrap();
 				let signature = payload.using_encoded(|b| {
 					if b.len() > 256 {
@@ -146,6 +148,7 @@ mod tests {
 
 	fn signed_extra(nonce: Index, extra_fee: Balance) -> SignedExtra {
 		(
+			system::CheckVersion::new(),
 			system::CheckGenesis::new(),
 			system::CheckEra::from(Era::mortal(256, 0)),
 			system::CheckNonce::from(nonce),
@@ -376,8 +379,7 @@ mod tests {
 				],
 				validator_count: 3,
 				minimum_validator_count: 0,
-				offline_slash: Perbill::zero(),
-				offline_slash_grace: 0,
+				slash_reward_fraction: Perbill::from_percent(10),
 				invulnerables: vec![alice(), bob(), charlie()],
 				.. Default::default()
 			}),
@@ -957,7 +959,7 @@ mod tests {
 		use test_client::{ClientExt, TestClientBuilder, consensus::BlockOrigin};
 
 		let client = TestClientBuilder::default()
-			.build_with_native_executor::<Block, node_runtime::RuntimeApi, _>(executor())
+			.build_with_native_executor::<Block, stafi_runtime::RuntimeApi, _>(executor())
 			.0;
 
 		let block1 = changes_trie_block();

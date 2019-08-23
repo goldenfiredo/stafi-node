@@ -5,8 +5,8 @@ authors = ["Stafi Protocol"]
 edition = "2018"
 
 [dependencies]
-trie-root = "0.14.0"
-parity-scale-codec = "1.0.0"
+trie-root = "0.15.2"
+codec = { package = "parity-scale-codec", version = "1.0.0" }
 runtime_io = { package = "sr-io", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 state_machine = { package = "substrate-state-machine", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 substrate-executor = { git = "https://github.com/stafiprotocol/stafi-blockchain" }
@@ -18,7 +18,7 @@ stafi-runtime = { path = "../runtime" }
 [dev-dependencies]
 test-client = { package = "substrate-test-client", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 keyring = { package = "substrate-keyring", git = "https://github.com/stafiprotocol/stafi-blockchain" }
-runtime_primitives = { package = "sr-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain" }
+sr_primitives = { package = "sr-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 runtime_support = { package = "srml-support", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 balances = { package = "srml-balances", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 session = { package = "srml-session", git = "https://github.com/stafiprotocol/stafi-blockchain" }

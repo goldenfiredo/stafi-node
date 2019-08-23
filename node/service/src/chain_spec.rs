@@ -18,7 +18,7 @@ use primitives::{Pair, Public};
 pub use stafi_primitives::{AccountId, Balance};
 use stafi_runtime::{
 	BabeConfig,	BalancesConfig, ContractsConfig, CouncilConfig, DemocracyConfig,
-	ElectionsConfig, GrandpaConfig, ImOnlineConfig, IndicesConfig, Perbill,
+	ElectionsConfig, GrandpaConfig, ImOnlineConfig, IndicesConfig,
 	SessionConfig,	SessionKeys, StakerStatus, StakingConfig, SudoConfig, SystemConfig,
 	TechnicalCommitteeConfig, WASM_BINARY,
 };
@@ -29,6 +29,7 @@ use substrate_telemetry::TelemetryEndpoints;
 use grandpa_primitives::{AuthorityId as GrandpaId};
 use babe_primitives::{AuthorityId as BabeId};
 use im_online::AuthorityId as ImOnlineId;
+use sr_primitives::Perbill;
 use crate::fixtures::*;
 
 const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
@@ -144,14 +145,13 @@ pub fn testnet_genesis(
 		}),
 		staking: Some(StakingConfig {
 			current_era: 0,
-			offline_slash: Perbill::from_parts(1_000_000),
 			validator_count: 7,
-			offline_slash_grace: 4,
 			minimum_validator_count: 4,
 			stakers: initial_authorities.iter().map(|x| {
 				(x.0.clone(), x.1.clone(), STASH, StakerStatus::Validator)
 			}).collect(),
 			invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
+			slash_reward_fraction: Perbill::from_percent(10),
 			.. Default::default()
 		}),
 		democracy: Some(DemocracyConfig::default()),
@@ -177,15 +177,15 @@ pub fn testnet_genesis(
 			key: root_key,
 		}),
 		babe: Some(BabeConfig {
-			authorities: initial_authorities.iter().map(|x| (x.3.clone(), 1)).collect(),
+			authorities: vec![],
 		}),
 		im_online: Some(ImOnlineConfig{
-			gossip_at: 0,
-			keys: initial_authorities.iter().map(|x| x.4.clone()).collect(),
+			keys: vec![],
 		}),
 		grandpa: Some(GrandpaConfig {
-			authorities: initial_authorities.iter().map(|x| (x.2.clone(), 1)).collect(),
+			authorities: vec![],
 		}),
+		membership_Instance1: Some(Default::default()),
     }
 }
 

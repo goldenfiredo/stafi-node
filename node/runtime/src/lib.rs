@@ -81,8 +81,8 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	// Per convention: if the runtime behavior changes, increment spec_version and set impl_version
 	// to equal spec_version. If only runtime implementation changes and behavior does not, then
 	// leave spec_version as is and increment impl_version.
-	spec_version: 140,
-	impl_version: 140,
+	spec_version: 147,
+	impl_version: 150,
 	apis: RUNTIME_API_VERSIONS,
 };
 
@@ -109,6 +109,7 @@ parameter_types! {
 	pub const MaximumBlockWeight: Weight = 1_000_000_000;
 	pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
 	pub const MaximumBlockLength: u32 = 5 * 1024 * 1024;
+	pub const Version: RuntimeVersion = VERSION;
 }
 
 impl system::Trait for Runtime {
@@ -127,6 +128,7 @@ impl system::Trait for Runtime {
 	type MaximumBlockWeight = MaximumBlockWeight;
 	type MaximumBlockLength = MaximumBlockLength;
 	type AvailableBlockRatio = AvailableBlockRatio;
+	type Version = Version;
 }
 
 parameter_types! {
@@ -190,11 +192,6 @@ impl authorship::Trait for Runtime {
 	type EventHandler = Staking;
 }
 
-parameter_types! {
-	pub const Period: BlockNumber = 10 * MINUTES;
-	pub const Offset: BlockNumber = 0;
-}
-
 type SessionHandlers = (Grandpa, Babe, ImOnline);
 
 impl_opaque_keys! {
@@ -217,7 +214,7 @@ impl_opaque_keys! {
 impl session::Trait for Runtime {
 	type OnSessionEnding = Staking;
 	type SessionHandler = SessionHandlers;
-	type ShouldEndSession = session::PeriodicSessions<Period, Offset>;
+	type ShouldEndSession = Babe;
 	type Event = Event;
 	type Keys = SessionKeys;
 	type ValidatorId = AccountId;
@@ -231,7 +228,7 @@ impl session::historical::Trait for Runtime {
 }
 
 parameter_types! {
-	pub const SessionsPerEra: session::SessionIndex = 6;
+	pub const SessionsPerEra: sr_staking_primitives::SessionIndex = 6;
 	pub const BondingDuration: staking::EraIndex = 24 * 28;
 }
 
@@ -254,7 +251,7 @@ parameter_types! {
 	pub const EmergencyVotingPeriod: BlockNumber = 3 * 24 * 60 * MINUTES;
 	pub const MinimumDeposit: Balance = 100 * DOLLARS;
 	pub const EnactmentPeriod: BlockNumber = 30 * 24 * 60 * MINUTES;
-	pub const CooloffPeriod: BlockNumber = 30 * 24 * 60 * MINUTES;
+	pub const CooloffPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
 }
 
 impl democracy::Trait for Runtime {
@@ -328,6 +325,16 @@ impl collective::Trait<TechnicalCollective> for Runtime {
 	type Event = Event;
 }
 
+impl membership::Trait<membership::Instance1> for Runtime {
+	type Event = Event;
+	type AddOrigin = collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>;
+	type RemoveOrigin = collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>;
+	type SwapOrigin = collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>;
+	type ResetOrigin = collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>;
+	type MembershipInitialized = TechnicalCommittee;
+	type MembershipChanged = TechnicalCommittee;
+}
+
 parameter_types! {
 	pub const ProposalBond: Permill = Permill::from_percent(5);
 	pub const ProposalBondMinimum: Balance = 1 * DOLLARS;
@@ -391,6 +398,14 @@ impl im_online::Trait for Runtime {
 	type Call = Call;
 	type Event = Event;
 	type UncheckedExtrinsic = UncheckedExtrinsic;
+	type ReportUnresponsiveness = Offences;
+	type CurrentElectedSet = staking::CurrentElectedStashAccounts<Runtime>;
+}
+
+impl offences::Trait for Runtime {
+	type Event = Event;
+	type IdentificationTuple = session::historical::IdentificationTuple<Self>;
+	type OnOffenceHandler = Staking;
 }
 
 impl grandpa::Trait for Runtime {
@@ -430,12 +445,14 @@ construct_runtime!(
 		Council: collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
 		TechnicalCommittee: collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
 		Elections: elections::{Module, Call, Storage, Event<T>, Config<T>},
+		TechnicalMembership: membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
 		FinalityTracker: finality_tracker::{Module, Call, Inherent},
 		Grandpa: grandpa::{Module, Call, Storage, Config, Event},
 		Treasury: treasury::{Module, Call, Storage, Event<T>},
 		Contracts: contracts,
 		Sudo: sudo,
-		ImOnline: im_online::{Module, Call, Storage, Event, ValidateUnsigned, Config<T>},
+		ImOnline: im_online::{Module, Call, Storage, Event, ValidateUnsigned, Config},
+		Offences: offences::{Module, Call, Storage, Event},
 		Voting: voting::{Module, Call, Storage, Event<T>},
 	}
 );
@@ -452,6 +469,7 @@ pub type SignedBlock = generic::SignedBlock<Block>;
 pub type BlockId = generic::BlockId<Block>;
 /// The SignedExtension to the basic transaction logic.
 pub type SignedExtra = (
+	system::CheckVersion<Runtime>,
 	system::CheckGenesis<Runtime>,
 	system::CheckEra<Runtime>,
 	system::CheckNonce<Runtime>,
@@ -559,6 +577,7 @@ impl_runtime_apis! {
 				epoch_index: Babe::epoch_index(),
 				randomness: Babe::randomness(),
 				duration: EpochDuration::get(),
+				secondary_slots: Babe::secondary_slots().0,
 			}
 		}
 	}

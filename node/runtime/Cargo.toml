@@ -13,6 +13,7 @@ substrate-primitives = { git = "https://github.com/stafiprotocol/stafi-blockchai
 client = { package = "substrate-client", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 rstd = { package = "sr-std", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 runtime_primitives = { package = "sr-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
+sr-staking-primitives = { package = "sr-staking-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 offchain-primitives = { package = "substrate-offchain-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 version = { package = "sr-version", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 support = { package = "srml-support", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
@@ -29,6 +30,7 @@ executive = { package = "srml-executive", git = "https://github.com/stafiprotoco
 finality-tracker = { package = "srml-finality-tracker", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 grandpa = { package = "srml-grandpa", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 indices = { package = "srml-indices", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
+membership = { package = "srml-membership", git ="https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 session = { package = "srml-session", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false, features = ["historical"] }
 staking = { package = "srml-staking", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 system = { package = "srml-system", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
@@ -36,6 +38,7 @@ timestamp = { package = "srml-timestamp", git = "https://github.com/stafiprotoco
 treasury = { package = "srml-treasury", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 sudo = { package = "srml-sudo", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 im-online = { package = "srml-im-online", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
+offences = { package = "srml-offences", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 rustc-hex = { version = "2.0", optional = true }
 serde = { version = "1.0", optional = true }
 substrate-keyring = { git = "https://github.com/stafiprotocol/stafi-blockchain", optional = true }
@@ -71,6 +74,7 @@ std = [
 	"finality-tracker/std",
 	"grandpa/std",
 	"indices/std",
+	"membership/std",
 	"session/std",
 	"staking/std",
 	"system/std",
@@ -85,6 +89,7 @@ std = [
 	"substrate-keyring",
 	"offchain-primitives/std",
 	"im-online/std",
+	"offences/std",
 	"substrate-session/std",
 	"stafi-voting/std",
 	"stafi-primitives/std",
