@@ -21,6 +21,8 @@
 #![recursion_limit="256"]
 
 use stafi_voting::voting;
+use stafi_staking::atomstaking as atomStaking;
+use stafi_staking::xtzstaking as xtzStaking;
 
 use rstd::prelude::*;
 use support::{
@@ -427,6 +429,14 @@ impl voting::Trait for Runtime {
 	type Event = Event;
 }
 
+impl atomStaking::Trait for Runtime {
+	type Event = Event;
+}
+
+impl xtzStaking::Trait for Runtime {
+	type Event = Event;
+}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -454,6 +464,8 @@ construct_runtime!(
 		ImOnline: im_online::{Module, Call, Storage, Event, ValidateUnsigned, Config},
 		Offences: offences::{Module, Call, Storage, Event},
 		Voting: voting::{Module, Call, Storage, Event<T>},
+		AtomStaking: atomStaking::{Module, Call, Storage, Event<T>},
+		XtzStaking: xtzStaking::{Module, Call, Storage, Event<T>},
 	}
 );
 

@@ -3635,6 +3635,7 @@ dependencies = [
  "srml-timestamp 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "srml-treasury 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "stafi-primitives 0.1.0",
+ "stafi-staking 0.1.0",
  "stafi-voting 0.1.0",
  "substrate-client 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "substrate-consensus-babe-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
@@ -3685,6 +3686,25 @@ dependencies = [
  "substrate-transaction-pool 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
  "tokio 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "transaction-factory 0.0.1 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+]
+
+[[package]]
+name = "stafi-staking"
+version = "0.1.0"
+dependencies = [
+ "parity-scale-codec 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sr-io 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "sr-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "sr-std 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "srml-balances 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "srml-support 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "srml-system 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "stafi-primitives 0.1.0",
+ "substrate-keyring 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
+ "substrate-primitives 2.0.0 (git+https://github.com/stafiprotocol/stafi-blockchain)",
 ]
 
 [[package]]
