@@ -1,4 +1,18 @@
-// Copyright 2018 Chainpool.
+// Copyright 2018 Stafi Protocol, Inc.
+// This file is part of Stafi.
+
+// Stafi is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// Stafi is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with Stafi.  If not, see <http://www.gnu.org/licenses/>.
 
 //! this module is for multisig, but now this is just for genesis multisig addr, not open for public.
 
@@ -8,12 +22,14 @@
 // We only implement the serde traits for std builds - they're unneeded
 // in the wasm runtime.
 #[cfg(feature = "std")]
+#[macro_use]
 extern crate serde_derive;
 
 // Needed for deriving `Encode` and `Decode` for `RawEvent`.
 #[macro_use]
-extern crate parity_codec_derive;
-extern crate parity_scale_codec as codec;
+extern crate codec;
+// extern crate parity_codec_derive;
+// extern crate parity_scale_codec as codec;
 
 // for substrate
 // Needed for the set of mock primitives used in our tests.
@@ -27,6 +43,7 @@ extern crate sr_std as rstd;
 #[cfg(feature = "std")]
 extern crate sr_io as runtime_io;
 extern crate sr_primitives as runtime_primitives;
+extern crate substrate_primitives as primitives;
 
 // for substrate runtime module lib
 // Needed for type-safe access to storage DB.
@@ -35,19 +52,20 @@ extern crate srml_support as runtime_support;
 extern crate srml_balances as balances;
 extern crate srml_system as system;
 
-mod transaction;
-
+// use system::GenesisConfig as BalancesConfig;
 use codec::{Codec, Decode, Encode};
 use rstd::marker::PhantomData;
 use rstd::prelude::*;
 use rstd::result::Result as StdResult;
 use runtime_primitives::traits::Hash;
 use runtime_support::dispatch::Result;
-use runtime_support::{StorageMap, StorageValue, traits::Currency};
+use runtime_support::{traits::Currency, StorageMap, StorageValue};
+use substrate_primitives::crypto::{UncheckedFrom, UncheckedInto};
 
 use system::ensure_signed;
 
-use transaction::{Transaction, TransactionType, TransferT};
+pub mod transaction;
+pub use transaction::{Transaction, TransactionType, TransferT};
 
 pub trait MultiSigFor<AccountId: Sized, Hash: Sized> {
     /// generate multisig addr for a accountid
@@ -91,6 +109,11 @@ decl_event!(
 
 decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+        fn deploy(origin, owners: Vec<(T::AccountId, bool)>, required_num: u32, value: T::Balance) -> Result {
+            let from = ensure_signed(origin)?;
+            Self::deploy_for(&from, owners, required_num, value)
+        }
+        
         fn is_owner_for(origin, multi_sig_addr: T::AccountId) -> Result {
             let from = ensure_signed(origin)?;
             Self::is_owner(&from, &multi_sig_addr, false).map(|_| ())
@@ -207,47 +230,45 @@ decl_storage! {
         pub ConfirmFee get(confirm_fee) config(): T::Balance;
     }
     // TODO: implement
-    // add_extra_genesis {
-    //     config(genesis_multi_sig): Vec<(T::AccountId, Vec<(T::AccountId, bool)>, u32, T::Balance)>;
-    //     config(balances_config): balances::GenesisConfig<T>;
-    //     build(|storage: &mut runtime_support::StorageMap, config: &GenesisConfig<T>| {
-    //         use runtime_io::with_externalities;
-    //         use substrate_primitives::Blake2Hasher;
-
-    //         // balances config storage
-    //         let mut src_r = BalancesConfigCopy::create_from_src(&config.balances_config).src().build_storage().unwrap();
-    //         src_r.extend(storage.clone());
-    //         let mut tmp_storage: runtime_io::TestExternalities<Blake2Hasher> = src_r.into();
-    //         let genesis = config.genesis_multi_sig.clone();
-    //         with_externalities(&mut tmp_storage, || {
-    //             for (deployer, owners, required_num, value) in genesis {
-    //                 if let Err(e) = <Module<T>>::deploy_for(&deployer, owners, required_num, value) {
-    //                     panic!(e)
-    //                 }
-    //                 // <system::Module<T>>::inc_account_nonce(&deployer);
-    //             }
-    //         });
-
-    //         let map: runtime_support::StorageMap = tmp_storage.into();
-    //         storage.extend(map);
-    //     });
-    // }
+    add_extra_genesis {
+        config(genesis_multi_sig): Vec<(T::AccountId, Vec<(T::AccountId, bool)>, u32, T::Balance)>;
+        // config(balances_config): BalancesConfig<T>;
+        // build(|storage: & mut (runtime_primitives::StorageOverlay, runtime_primitives::ChildrenStorageOverlay), config: &GenesisConfig<T>| {
+        //     use runtime_io::{with_externalities, with_storage};
+        //     use substrate_primitives::Blake2Hasher;
+        //     with_storage(storage, || {
+        //         let src_r = BalancesConfigCopy::create_from_src(&config.balances_config).src().build_storage().unwrap();
+        //         let mut tmp_storage: runtime_io::TestExternalities<Blake2Hasher> = src_r.into();
+        //         let genesis = config.genesis_multi_sig.clone();
+        //         with_externalities(&mut tmp_storage, || {
+        //             for (deployer, owners, required_num, value) in genesis {
+        //                 if let Err(e) = <Module<T>>::deploy_for(&deployer, owners, required_num, value) {
+        //                     panic!(e)
+        //                 }
+        //                 // <system::Module<T>>::inc_account_nonce(&deployer);
+        //             }
+        //         });
+        //     });
+        // });
+    }
 }
 
 //impl trait
 /// Simple MultiSigIdFor struct
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Encode, Decode, PartialEq)]
 pub struct SimpleMultiSigIdFor<T: Trait>(PhantomData<T>);
 
 impl<T: Trait> MultiSigFor<T::AccountId, T::Hash> for SimpleMultiSigIdFor<T>
 where
-    T::AccountId: From<T::Hash>,
+    T::AccountId: UncheckedFrom<T::Hash>,
 {
     fn multi_sig_addr_for(who: &T::AccountId) -> T::AccountId {
         let mut buf = Vec::<u8>::new();
         buf.extend_from_slice(&who.encode());
         buf.extend_from_slice(&<system::Module<T>>::account_nonce(who).encode());
         buf.extend_from_slice(&<Module<T>>::multi_sig_list_len_for(who).encode()); // in case same nonce in genesis
-        T::Hashing::hash(&buf[..]).into()
+        T::Hashing::hash(&buf[..]).unchecked_into()
     }
 
     fn multi_sig_id_for(who: &T::AccountId, addr: &T::AccountId, data: &[u8]) -> T::Hash {
@@ -385,18 +406,6 @@ impl<T: Trait> Module<T> {
 }
 
 impl<T: Trait> Module<T> {
-    // public call
-    #[allow(unused)]
-    fn deploy(
-        origin: T::Origin,
-        owners: Vec<(T::AccountId, bool)>,
-        required_num: u32,
-        value: T::Balance,
-    ) -> Result {
-        let from = ensure_signed(origin)?;
-        Self::deploy_for(&from, owners, required_num, value)
-    }
-
     fn deploy_for(
         account_id: &T::AccountId,
         owners: Vec<(T::AccountId, bool)>,
@@ -431,8 +440,9 @@ impl<T: Trait> Module<T> {
         // 1
         let len = Self::multi_sig_list_len_for(account_id);
         <MultiSigListItemFor<T>>::insert((account_id.clone(), len), multi_addr.clone());
-        <MultiSigListLenFor<T>>::insert(account_id.clone(), len + 1); // length inc
-                                                                      // 2
+        // length inc
+        <MultiSigListLenFor<T>>::insert(account_id.clone(), len + 1);
+        // 2
         <MultiSigOwnerFor<T>>::insert(multi_addr.clone(), account_id.clone());
         // 3
         <MultiSigListOwnerFor<T>>::insert(multi_addr.clone(), owners.clone());
@@ -498,23 +508,23 @@ impl<T: Trait> Module<T> {
     }
 }
 
-// #[cfg(feature = "std")]
-// pub struct BalancesConfigCopy<T: Trait>(balances::GenesisConfig<T>);
+// #[derive(Encode, Decode)]
+// pub struct BalancesConfigCopy<T: Trait>(BalancesConfig<T>);
 
-// #[cfg(feature = "std")]
 // impl<T: Trait> BalancesConfigCopy<T> {
-//     pub fn create_from_src(config: &balances::GenesisConfig<T>) -> BalancesConfigCopy<T> {
-//         BalancesConfigCopy(balances::GenesisConfig::<T> {
+//     pub fn create_from_src(config: &BalancesConfig<T>) -> BalancesConfigCopy<T> {
+//         BalancesConfigCopy(BalancesConfig::<T> {
 //             balances: config.balances.clone(),
-//             transaction_base_fee: config.transaction_base_fee.clone(),
-//             transaction_byte_fee: config.transaction_byte_fee.clone(),
-//             transfer_fee: config.transfer_fee.clone(),
-//             creation_fee: config.creation_fee.clone(),
-//             reclaim_rebate: config.reclaim_rebate.clone(),
-//             existential_deposit: config.existential_deposit.clone(),
+//             vesting: config.vesting.clone(),
+//             // transaction_base_fee: config.transaction_base_fee.clone(),
+//             // transaction_byte_fee: config.transaction_byte_fee.clone(),
+//             // transfer_fee: config.transfer_fee.clone(),
+//             // creation_fee: config.creation_fee.clone(),
+//             // reclaim_rebate: config.reclaim_rebate.clone(),
+//             // existential_deposit: config.existential_deposit.clone(),
 //         })
 //     }
-//     pub fn src(self) -> balances::GenesisConfig<T> {
+//     pub fn src(self) -> BalancesConfig<T> {
 //         self.0
 //     }
 // }
