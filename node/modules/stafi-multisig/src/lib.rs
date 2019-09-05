@@ -119,6 +119,11 @@ decl_module! {
             Self::is_owner(&from, &multi_sig_addr, false).map(|_| ())
         }
 
+        fn transfer(origin, multi_sig_addr: T::AccountId, tx_type: TransactionType, target: T::AccountId, balance: T::Balance) -> Result {
+            let data = TransferT::<T> { to: target, value: balance }.encode();
+            Self::execute(origin, multi_sig_addr, tx_type, data)
+        }
+
         fn execute(origin, multi_sig_addr: T::AccountId, tx_type: TransactionType, data: Vec<u8>) -> Result {
             let from: T::AccountId = ensure_signed(origin)?;
             Self::only_owner(&from, &multi_sig_addr, true)?;
