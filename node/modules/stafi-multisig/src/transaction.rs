@@ -20,12 +20,12 @@ use rstd::prelude::*;
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
 #[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
 pub enum TransactionType {
-    TransferChainX,
+    TransferStafi,
 }
 
 impl Default for TransactionType {
     fn default() -> Self {
-        TransactionType::TransferChainX
+        TransactionType::TransferStafi
     }
 }
 

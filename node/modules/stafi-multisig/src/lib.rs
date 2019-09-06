@@ -488,7 +488,7 @@ impl<T: Trait> Module<T> {
 impl<T: Trait> Module<T> {
     fn tx_check(tx_type: TransactionType, data: Vec<u8>) -> Result {
         match tx_type {
-            TransactionType::TransferChainX => {
+            TransactionType::TransferStafi => {
                 if let Err(_) = TransferT::<T>::decode(&mut data.as_slice()) {
                     return Err("parse err for this tx data");
                 }
@@ -500,7 +500,7 @@ impl<T: Trait> Module<T> {
     fn exec_tx(addr: &T::AccountId, tx: Transaction) -> Result {
         let data: Vec<u8> = tx.data();
         match tx.tx_type() {
-            TransactionType::TransferChainX => {
+            TransactionType::TransferStafi => {
                 let t = TransferT::<T>::decode(&mut data.as_slice()).unwrap();
                 // let origin = system::RawOrigin::Signed(addr.clone()).into();
                 // let to: balances::Address<T> = balances::address::Address::Id(t.to);
