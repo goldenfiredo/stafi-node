@@ -45,6 +45,7 @@ substrate-keyring = { git = "https://github.com/stafiprotocol/stafi-blockchain",
 substrate-session = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 
 stafi-voting = { path = "../modules/stafi-voting", default-features = false }
+stafi-multisig = { path = "../modules/stafi-multisig", default-features = false }
 stafi-primitives = { path = "../primitives", default-features = false }
 
 [build-dependencies]
@@ -92,5 +93,6 @@ std = [
 	"offences/std",
 	"substrate-session/std",
 	"stafi-voting/std",
+	"stafi-multisig/std",
 	"stafi-primitives/std",
 ]
