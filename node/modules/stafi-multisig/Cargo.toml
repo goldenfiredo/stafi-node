@@ -1,6 +1,6 @@
 [package]
 name = "stafi-multisig"
-version = "0.3.0"
+version = "0.1.0"
 authors = ["Stafi Protocol"]
 edition = "2018"
 
