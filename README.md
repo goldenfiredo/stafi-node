@@ -62,7 +62,7 @@ Ensure you have a fresh start if updating from another version:
 ```
 ./scripts/purge-chain.sh
 ```
-To start up the Edgeware node and connect to the latest testnet, run:
+To start up the Stafi node and connect to the latest testnet, run:
 ```
 ./target/release/stafi --chain=stafi --name <INSERT_NAME>
 ```
