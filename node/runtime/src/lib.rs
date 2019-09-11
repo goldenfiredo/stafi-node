@@ -22,6 +22,7 @@
 
 use stafi_voting::voting;
 use stafi_multisig::*;
+use tokenbalances;
 
 use rstd::prelude::*;
 use support::{
@@ -433,6 +434,13 @@ impl stafi_multisig::Trait for Runtime {
 	type Event = Event;
 }
 
+impl tokenbalances::Trait for Runtime {
+	const STAFI_SYMBOL: tokenbalances::SymbolString = b"FISH";
+    const STAFI_TOKEN_DESC: tokenbalances::DescString = b"STAFI";
+	type Event = Event;
+	type TokenBalance = u128;
+}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -460,6 +468,7 @@ construct_runtime!(
 		ImOnline: im_online::{Module, Call, Storage, Event, ValidateUnsigned, Config},
 		Offences: offences::{Module, Call, Storage, Event},
 		Voting: voting::{Module, Call, Storage, Event<T>},
+		Tokenbalances: tokenbalances::{Module, Call, Storage, Event<T>},
 		MultiSig: stafi_multisig::{Module, Call, Storage, Event<T>},
 	}
 );
