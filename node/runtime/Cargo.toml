@@ -44,7 +44,6 @@ serde = { version = "1.0", optional = true }
 substrate-keyring = { git = "https://github.com/stafiprotocol/stafi-blockchain", optional = true }
 substrate-session = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 
-stafi-voting = { path = "../modules/stafi-voting", default-features = false }
 tokenbalances = { path = "../modules/tokenbalances", default-features = false }
 stafi-multisig = { path = "../modules/stafi-multisig", default-features = false }
 stafi-primitives = { path = "../primitives", default-features = false }
@@ -93,7 +92,6 @@ std = [
 	"im-online/std",
 	"offences/std",
 	"substrate-session/std",
-	"stafi-voting/std",
 	"tokenbalances/std",
 	"stafi-multisig/std",
 	"stafi-primitives/std",

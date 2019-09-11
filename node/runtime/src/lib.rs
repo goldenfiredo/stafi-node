@@ -20,7 +20,6 @@
 // `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
 #![recursion_limit="256"]
 
-use stafi_voting::voting;
 use stafi_multisig::*;
 use tokenbalances;
 
@@ -425,10 +424,6 @@ impl finality_tracker::Trait for Runtime {
 	type ReportLatency = ReportLatency;
 }
 
-impl voting::Trait for Runtime {
-	type Event = Event;
-}
-
 impl stafi_multisig::Trait for Runtime {
 	type MultiSig = stafi_multisig::SimpleMultiSigIdFor<Runtime>;
 	type Event = Event;
@@ -467,7 +462,6 @@ construct_runtime!(
 		Sudo: sudo,
 		ImOnline: im_online::{Module, Call, Storage, Event, ValidateUnsigned, Config},
 		Offences: offences::{Module, Call, Storage, Event},
-		Voting: voting::{Module, Call, Storage, Event<T>},
 		Tokenbalances: tokenbalances::{Module, Call, Storage, Event<T>},
 		MultiSig: stafi_multisig::{Module, Call, Storage, Event<T>},
 	}
