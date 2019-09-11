@@ -61,13 +61,8 @@ impl Token {
 
 decl_storage! {
 	trait Store for Module<T: Trait> as TemplateModule {
-		Something get(something): Option<u32>;
-
-		SomeValue get(some_value_getter): map u32 => u32;
-
 		pub TokenInfo get(token_info): map Symbol => Option<(Token, bool)>;
 
-        /// total free token of a symbol
         pub TotalFreeToken get(total_free_token): map Symbol => T::TokenBalance;
 
         pub FreeToken get(token_free_balance): map (T::AccountId, Symbol) => T::TokenBalance;
@@ -79,20 +74,6 @@ decl_storage! {
 decl_module! {
 	pub struct Module<T: Trait> for enum Call where origin: T::Origin {
 		fn deposit_event<T>() = default;
-
-		pub fn do_something(origin, something: u32) -> Result {
-			let who = ensure_signed(origin)?;
-			Something::put(something);
-			Self::deposit_event(RawEvent::SomethingStored(something, who));
-			Ok(())
-		}
-
-		pub fn test(origin, key : u32, value : u32) -> Result {
-			let who = ensure_signed(origin)?;
-            SomeValue::insert(key, value);
-			Self::deposit_event(RawEvent::SomethingStored(value, who));
-            Ok(())
-        }
 
 		pub fn register_token(
             origin,
