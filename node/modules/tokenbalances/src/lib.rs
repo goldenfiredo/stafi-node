@@ -10,7 +10,6 @@ use parity_codec::{Codec, Encode, Decode};
 use sr_primitives::traits::MaybeSerializeDebug;
 
 pub type SymbolString = &'static [u8];
-
 pub type DescString = SymbolString;
 
 pub trait Trait: balances::Trait {
@@ -20,7 +19,7 @@ pub trait Trait: balances::Trait {
 	type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
 }
 
-pub type Symbol = Vec<u8>;
+pub type Symbol = u16;
 pub type TokenDesc = Vec<u8>;
 pub type Precision = u16;
 
@@ -61,7 +60,7 @@ impl Token {
 
 decl_storage! {
 	trait Store for Module<T: Trait> as TemplateModule {
-		pub TokenInfo get(token_info): map Symbol => Option<(Token, bool)>;
+		pub TokenInfo get(token_info): map Symbol => Token;
 
         pub TotalFreeToken get(total_free_token): map Symbol => T::TokenBalance;
 
@@ -87,7 +86,7 @@ decl_module! {
             	token_desc : token_desc,
             	precision : precision,
 			};
-            <TokenInfo>::insert(token.symbol(), (token.clone(), true));
+            <TokenInfo>::insert(token.symbol(), token.clone());
 			Self::deposit_event(RawEvent::TokenInfoStored(token, who));
             Ok(())
         }
