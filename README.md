@@ -62,7 +62,7 @@ Ensure you have a fresh start if updating from another version:
 ```
 ./scripts/purge-chain.sh
 ```
-To start up the Edgeware node and connect to the latest testnet, run:
+To start up the Stafi node and connect to the latest testnet, run:
 ```
 ./target/release/stafi --chain=stafi --name <INSERT_NAME>
 ```
@@ -76,7 +76,8 @@ If you use the `--key` flag, ensure that either it is a 32-byte hex string or pr
 
 ### Stafi
 
-* [Voting](https://github.com/stafiprotocol/stafi-node/tree/master/node/modules/stafi-voting)
+* [Multisig](https://github.com/stafiprotocol/stafi-node/tree/master/node/modules/stafi-multisig)
+* [Tokenbalances](https://github.com/stafiprotocol/stafi-node/tree/master/node/modules/tokenbalances)
 
 ### SRML
 * [System](https://github.com/paritytech/substrate/tree/master/srml/system)

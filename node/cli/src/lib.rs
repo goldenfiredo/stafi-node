@@ -17,9 +17,8 @@
 #![warn(missing_docs)]
 #![warn(unused_extern_crates)]
 
-use stafi_service as service;
+// use stafi_service as stafiservice;
 
-pub use service::Factory;
 use substrate_cli as cli;
 use substrate_cli::{parse_and_prepare, AugmentClap, GetLogFilter, ParseAndPrepare};
 use serde_json as json;
@@ -27,15 +26,16 @@ use serde_json as json;
 pub use cli::error;
 mod chain_spec;
 mod factory_impl;
+#[macro_use]
+mod service;
 
 use crate::factory_impl::FactoryState;
 use chain_spec::ChainSpec;
 pub use cli::{ExecutionStrategyParam, IntoExit, NoCustom, SharedParams, VersionInfo, CoreParams};
 use client::ExecutionStrategies;
 use log::info;
-use std::ops::Deref;
 use structopt::{clap::App, StructOpt, clap::AppSettings};
-use substrate_service::{Roles as ServiceRoles, ServiceFactory};
+use substrate_service::{AbstractService, Roles as ServiceRoles};
 use tokio::prelude::Future;
 use tokio::runtime::{Builder as RuntimeBuilder, Runtime};
 use transaction_factory::RuntimeAdapter;
@@ -133,7 +133,7 @@ impl GetLogFilter for StafiCustom {
     }
 }
 
-fn load_spec(id: &str) -> Result<Option<service::chain_spec::ChainSpec>, String> {
+fn load_spec(id: &str) -> Result<Option<stafi_service::chain_spec::ChainSpec>, String> {
     Ok(match ChainSpec::from(id) {
         Some(spec) => Some(spec.load()?),
         None => None,
@@ -199,42 +199,43 @@ where
     }    
 
     match parse_and_prepare::<CustomSubcommands, StafiCustom, _>(&version, "substrate-node", args_vec_copy) {
-        ParseAndPrepare::Run(cmd) => {
-            cmd.run(load_spec, exit, |exit, _cli_args, _custom_args, config| {
-                info!("{}", version.name);
-                info!("  version {}", config.full_version());
-                info!("  by {}, 2018-2019", version.author);
-                info!("Chain specification: {}", config.chain_spec.name());
-                info!("Node name: {}", config.name);
-                info!("Roles: {:?}", config.roles);
-                let runtime = RuntimeBuilder::new()
-                    .name_prefix("main-tokio-")
-                    .build()
-                    .map_err(|e| format!("{:?}", e))?;
-                match config.roles {
-                    ServiceRoles::LIGHT => run_until_exit(
-                        runtime,
-                        service::Factory::new_light(config).map_err(|e| format!("{:?}", e))?,
-                        exit,
-                    ),
-                    _ => run_until_exit(
-                        runtime,
-                        service::Factory::new_full(config).map_err(|e| format!("{:?}", e))?,
-                        exit,
-                    ),
-                }
-                .map_err(|e| format!("{:?}", e))
-            })
-        }
+        ParseAndPrepare::Run(cmd) => cmd.run::<(), _, _, _, _>(load_spec, exit,
+        |exit, _cli_args, _custom_args, config| {
+            info!("{}", version.name);
+            info!("  version {}", config.full_version());
+            info!("  by {}, 2018-2019", version.author);
+            info!("Chain specification: {}", config.chain_spec.name());
+            info!("Node name: {}", config.name);
+            info!("Roles: {:?}", config.roles);
+            let runtime = RuntimeBuilder::new()
+                .name_prefix("main-tokio-")
+                .build()
+                .map_err(|e| format!("{:?}", e))?;
+            match config.roles {
+                ServiceRoles::LIGHT => run_until_exit(
+                    runtime,
+                    service::new_light(config).map_err(|e| format!("{:?}", e))?,
+                    exit,
+                ),
+                _ => run_until_exit(
+                    runtime,
+                    service::new_full(config).map_err(|e| format!("{:?}", e))?,
+                    exit,
+                ),
+            }
+            .map_err(|e| format!("{:?}", e))
+        }),
 
         ParseAndPrepare::BuildSpec(cmd) => cmd.run(load_spec),
-        ParseAndPrepare::ExportBlocks(cmd) => cmd.run::<service::Factory, _, _>(load_spec, exit),
-        ParseAndPrepare::ImportBlocks(cmd) => cmd.run::<service::Factory, _, _>(load_spec, exit),
+        ParseAndPrepare::ExportBlocks(cmd) => cmd.run_with_builder::<(), _, _, _, _, _>(|config|
+			Ok(new_full_start!(config).0), load_spec, exit),
+		ParseAndPrepare::ImportBlocks(cmd) => cmd.run_with_builder::<(), _, _, _, _, _>(|config|
+			Ok(new_full_start!(config).0), load_spec, exit),
         ParseAndPrepare::PurgeChain(cmd) => cmd.run(load_spec),
-        ParseAndPrepare::RevertChain(cmd) => cmd.run::<service::Factory, _>(load_spec),
+        ParseAndPrepare::RevertChain(cmd) => cmd.run_with_builder::<(), _, _, _, _>(|config|
+			Ok(new_full_start!(config).0), load_spec),
         ParseAndPrepare::CustomCommand(CustomSubcommands::Factory(cli_args)) => {
-            let mut config =
-                cli::create_config_with_db_path(load_spec, &cli_args.shared_params, &version)?;
+            let mut config = cli::create_config_with_db_path::<(), _, _>(load_spec, &cli_args.shared_params, &version)?;
             config.execution_strategies = ExecutionStrategies {
                 importing: cli_args.execution.into(),
                 block_construction: cli_args.execution.into(),
@@ -249,22 +250,23 @@ where
 
             let factory_state =
                 FactoryState::new(cli_args.mode.clone(), cli_args.num, cli_args.rounds);
-            transaction_factory::factory::<service::Factory, FactoryState<_>>(
-                factory_state,
-                config,
-            )
-            .map_err(|e| format!("Error in transaction factory: {}", e))?;
+
+            let service_builder = new_full_start!(config).0;
+			transaction_factory::factory::<FactoryState<_>, _, _, _, _, _>(
+				factory_state,
+				service_builder.client(),
+				service_builder.select_chain()
+					.expect("The select_chain is always initialized by new_full_start!; QED")
+			).map_err(|e| format!("Error in transaction factory: {}", e))?;
 
             Ok(())
         }
     }
 }
 
-fn run_until_exit<T, C, E>(mut runtime: Runtime, service: T, e: E) -> error::Result<()>
+fn run_until_exit<T, E>(mut runtime: Runtime, service: T, e: E) -> error::Result<()>
 where
-    T: Deref<Target = substrate_service::Service<C>>,
-    T: Future<Item = (), Error = substrate_service::error::Error> + Send + 'static,
-    C: substrate_service::Components,
+    T: AbstractService,
     E: IntoExit,
 {
     let (exit_send, exit) = exit_future::signal();

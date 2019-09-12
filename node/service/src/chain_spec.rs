@@ -17,7 +17,7 @@
 use primitives::{Pair, Public};
 pub use stafi_primitives::{AccountId, Balance};
 use stafi_runtime::{
-	BabeConfig,	BalancesConfig, ContractsConfig, CouncilConfig, DemocracyConfig,
+	AuthorityDiscoveryConfig, BabeConfig, BalancesConfig, ContractsConfig, CouncilConfig, DemocracyConfig,
 	ElectionsConfig, GrandpaConfig, ImOnlineConfig, IndicesConfig,
 	SessionConfig,	SessionKeys, StakerStatus, StakingConfig, SudoConfig, SystemConfig,
 	TechnicalCommitteeConfig, WASM_BINARY,
@@ -28,7 +28,7 @@ use substrate_service;
 use substrate_telemetry::TelemetryEndpoints;
 use grandpa_primitives::{AuthorityId as GrandpaId};
 use babe_primitives::{AuthorityId as BabeId};
-use im_online::AuthorityId as ImOnlineId;
+use im_online::sr25519::{AuthorityId as ImOnlineId};
 use sr_primitives::Perbill;
 use crate::fixtures::*;
 
@@ -179,7 +179,10 @@ pub fn testnet_genesis(
 		babe: Some(BabeConfig {
 			authorities: vec![],
 		}),
-		im_online: Some(ImOnlineConfig{
+		im_online: Some(ImOnlineConfig {
+			keys: vec![],
+		}),
+		authority_discovery: Some(AuthorityDiscoveryConfig {
 			keys: vec![],
 		}),
 		grandpa: Some(GrandpaConfig {
