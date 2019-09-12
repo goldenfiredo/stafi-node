@@ -17,12 +17,10 @@ stafi-runtime = { path = "../runtime" }
 
 [dev-dependencies]
 test-client = { package = "substrate-test-client", git = "https://github.com/stafiprotocol/stafi-blockchain" }
-keyring = { package = "substrate-keyring", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 sr_primitives = { package = "sr-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 runtime_support = { package = "srml-support", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 balances = { package = "srml-balances", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 session = { package = "srml-session", git = "https://github.com/stafiprotocol/stafi-blockchain" }
-staking = { package = "srml-staking", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 system = { package = "srml-system", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 timestamp = { package = "srml-timestamp", git = "https://github.com/stafiprotocol/stafi-blockchain" }
 treasury = { package = "srml-treasury", git = "https://github.com/stafiprotocol/stafi-blockchain" }
