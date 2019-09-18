@@ -8,7 +8,7 @@ build = "build.rs"
 [dependencies]
 integer-sqrt = { version = "0.1.2" }
 safe-mix = { version = "1.0", default-features = false }
-parity-codec = { package = "parity-scale-codec", version = "1.0.0", default-features = false, features = ["derive"] }
+codec = { package = "parity-scale-codec", version = "1.0.0", default-features = false, features = ["derive"] }
 substrate-primitives = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 client = { package = "substrate-client", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 rstd = { package = "sr-std", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
@@ -20,7 +20,6 @@ support = { package = "srml-support", git = "https://github.com/stafiprotocol/st
 authorship = { package = "srml-authorship", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 babe = { package = "srml-babe", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 babe-primitives = { package = "substrate-consensus-babe-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
-consensus-primitives = { package = "substrate-consensus-common-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 balances = { package = "srml-balances", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 contracts = { package = "srml-contracts", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 collective = { package = "srml-collective", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
@@ -43,9 +42,13 @@ rustc-hex = { version = "2.0", optional = true }
 serde = { version = "1.0", optional = true }
 substrate-keyring = { git = "https://github.com/stafiprotocol/stafi-blockchain", optional = true }
 substrate-session = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
+authority-discovery-primitives = { package = "substrate-authority-discovery-primitives", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
+authority-discovery = { package = "srml-authority-discovery", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 
-stafi-voting = { path = "../modules/stafi-voting", default-features = false }
 stafi-staking = { path = "../modules/stafi-staking", default-features = false }
+tokenbalances = { path = "../modules/tokenbalances", default-features = false }
+stafi-multisig = { path = "../modules/stafi-multisig", default-features = false }
+
 stafi-primitives = { path = "../primitives", default-features = false }
 
 [build-dependencies]
@@ -57,7 +60,9 @@ no_std = [
 	"contracts/core",
 ]
 std = [
-	"parity-codec/std",
+	"authority-discovery-primitives/std",
+	"authority-discovery/std",
+	"codec/std",
 	"substrate-primitives/std",
 	"rstd/std",
 	"runtime_primitives/std",
@@ -65,7 +70,6 @@ std = [
 	"authorship/std",
 	"babe/std",
 	"babe-primitives/std",
-	"consensus-primitives/std",
 	"balances/std",
 	"contracts/std",
 	"collective/std",
@@ -92,7 +96,8 @@ std = [
 	"im-online/std",
 	"offences/std",
 	"substrate-session/std",
-	"stafi-voting/std",
 	"stafi-staking/std",
+	"tokenbalances/std",
+	"stafi-multisig/std",
 	"stafi-primitives/std",
 ]

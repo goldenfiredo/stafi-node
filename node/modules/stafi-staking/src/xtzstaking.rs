@@ -71,10 +71,10 @@ decl_module! {
 	pub struct Module<T: Trait> for enum Call where origin: T::Origin {
 		// Initializing events
 		// this is needed only if you are using events in your module
-		fn deposit_event<T>() = default;
+		fn deposit_event() = default;
 
 		// 
-		pub fn custom_stake(origin, multi_sig_address: Vec<u8>, stake_amount: u128, validator: Vec<u8>, transfer_msg: Vec<u8>, signatures: Vec<u8>) -> Result {
+		pub fn custom_stake(origin, multi_sig_address: Vec<u8>, stake_amount: u128, validator: Vec<u8>, _transfer_msg: Vec<u8>, _signatures: Vec<u8>) -> Result {
 			let sender = ensure_signed(origin)?;
 
 			ensure!(stake_amount > 0, "Stake amount must be greater than 0");

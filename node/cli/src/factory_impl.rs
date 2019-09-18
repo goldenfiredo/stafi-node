@@ -62,6 +62,7 @@ impl<Number> FactoryState<Number> {
             system::CheckNonce::from(index),
             system::CheckWeight::new(),
             balances::TakeFees::from(0),
+            Default::default(),
         )
     }
 }
@@ -148,7 +149,7 @@ impl RuntimeAdapter for FactoryState<Number> {
 					(*amount).into()
 				)
 			)
-		}, key, (version, genesis_hash.clone(), prior_block_hash.clone(), (), (), ()))
+		}, key, (version, genesis_hash.clone(), prior_block_hash.clone(), (), (), (), ()))
 	}
 
     fn inherent_extrinsics(&self) -> InherentData {

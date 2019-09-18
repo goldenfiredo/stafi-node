@@ -1,7 +1,7 @@
 use stafi_primitives::AccountId;
 use grandpa_primitives::{AuthorityId as GrandpaId};
 use babe_primitives::{AuthorityId as BabeId};
-use im_online::AuthorityId as ImOnlineId;
+use im_online::sr25519::{AuthorityId as ImOnlineId};
 use primitives::crypto::UncheckedInto;
 use hex_literal::hex;
 
