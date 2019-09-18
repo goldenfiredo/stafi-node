@@ -3,11 +3,13 @@
 extern crate srml_support as support;
 extern crate srml_system as system;
 extern crate srml_balances as balances;
+extern crate sr_primitives as runtime_primitives;
 
-use support::{decl_module, decl_storage, decl_event, StorageValue, StorageMap, dispatch::Result, Parameter, dispatch::Vec};
+use support::{decl_module, decl_storage, decl_event, StorageMap, dispatch::Result, Parameter, dispatch::Vec};
 use system::ensure_signed;
 use parity_codec::{Codec, Encode, Decode};
 use sr_primitives::traits::MaybeSerializeDebug;
+use runtime_primitives::traits::Hash;
 
 pub type SymbolString = &'static [u8];
 pub type DescString = SymbolString;
@@ -29,6 +31,22 @@ pub struct Token {
     symbol: Symbol,
     token_desc: TokenDesc,
     precision: Precision,
+}
+
+pub type BondBalance = u16;
+pub type RewardsAmount = u16;
+//pub type AccountId = Vec<u8>;
+pub type StakingTime = u16;
+
+#[derive(PartialEq, Eq, Clone, Encode, Decode, Default)]
+#[cfg_attr(feature = "std", derive( Debug))]
+pub struct BondToken<AccountId, Hash> {
+	symbol: Symbol,
+	balance: BondBalance,
+	rewards_amount: RewardsAmount,
+	account_id: AccountId,
+	staking_time: StakingTime,
+	hash: Hash,
 }
 
 impl Token {
@@ -65,6 +83,9 @@ decl_storage! {
         pub TotalFreeToken get(total_free_token): map Symbol => T::TokenBalance;
 
         pub FreeToken get(token_free_balance): map (T::AccountId, Symbol) => T::TokenBalance;
+
+		pub FreeBondToken get(bond_token_free_balance): map (T::AccountId, T::Hash) => BondToken<T::AccountId, T::Hash>;
+
 
         //pub TokenListOf get(token_list_of): map T::AccountId => Vec<Symbol> = [T::STAFI_SYMBOL.to_vec()].to_vec();
 	}
@@ -103,6 +124,29 @@ decl_module! {
 			Self::deposit_event(RawEvent::FreeTokenStored(sym.clone(), from));
             Ok(())
         }
+
+		pub fn set_free_bond_token(
+            origin, 
+            sym: Symbol, 
+            free: BondBalance,
+			staking_time: StakingTime
+            ) -> Result {
+            let who = ensure_signed(origin)?;
+			let random_seed = <system::Module<T>>::random_seed();
+            let hash = (random_seed, &who).using_encoded(<T as system::Trait>::Hashing::hash);
+			let key = (who.clone(), hash.clone());
+			let bond_tokne = BondToken{
+				symbol: sym,
+				balance: free,
+				rewards_amount: 0,
+				account_id: who.clone(),
+				staking_time: staking_time,
+				hash: hash,
+			};
+            FreeBondToken::<T>::insert(key, bond_tokne);
+			Self::deposit_event(RawEvent::FreeBondTokenStored(sym.clone(), who.clone()));
+            Ok(())
+        }
 	}
 }
 
@@ -112,6 +156,7 @@ decl_event!(
 		SomeValueStored(u32, AccountId),
 		TokenInfoStored(Token, AccountId),
 		FreeTokenStored(Symbol, AccountId),
+		FreeBondTokenStored(Symbol, AccountId),
 	}
 );
 
