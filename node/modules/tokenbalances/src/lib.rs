@@ -26,8 +26,8 @@ pub trait Trait: balances::Trait+timestamp::Trait {
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
 pub enum Symbol {
-	XTZBOND,
-	ATOMBOND,
+	XtzBond,
+	AtomBond,
 }
 impl Default for Symbol {
 	fn default() -> Symbol {
