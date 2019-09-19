@@ -26,12 +26,12 @@ pub trait Trait: balances::Trait+timestamp::Trait {
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
 pub enum Symbol {
-	XTZ-BOND,
-	ATOM-BOND,
+	XTZBOND,
+	ATOMBOND,
 }
 impl Default for Symbol {
 	fn default() -> Symbol {
-		Symbol::XTZ
+		Symbol::XTZBOND
 	}
 }
 
@@ -142,7 +142,7 @@ decl_module! {
             free: Balance
             ) -> Result {
             let who = ensure_signed(origin)?;
-			Self::add_bond_token(who.clone(), sym, free);
+			Self::add_bond_token(who.clone(), sym, free)?;
 			Self::deposit_event(RawEvent::FreeBondTokenStored(sym.clone(), who));
 			Ok(())
         }
