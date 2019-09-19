@@ -26,12 +26,12 @@ pub trait Trait: balances::Trait+timestamp::Trait {
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
 pub enum Symbol {
-	XTZ,
-	ATOM,
+	XtzBond,
+	AtomBond,
 }
 impl Default for Symbol {
 	fn default() -> Symbol {
-		Symbol::XTZ
+		Symbol::XtzBond
 	}
 }
 
@@ -142,7 +142,7 @@ decl_module! {
             free: Balance
             ) -> Result {
             let who = ensure_signed(origin)?;
-			Self::add_bond_token(who.clone(), sym, free);
+			Self::add_bond_token(who.clone(), sym, free)?;
 			Self::deposit_event(RawEvent::FreeBondTokenStored(sym.clone(), who));
 			Ok(())
         }
@@ -165,7 +165,7 @@ impl<T: Trait> Module<T> {
             let hash = (random_seed, &who).using_encoded(<T as system::Trait>::Hashing::hash);
 			let key = (who.clone(), hash.clone());
 			let _now = <timestamp::Module<T>>::get();
-			let bond_tokne = BondToken{
+			let bond_token = BondToken{
 				symbol: symbol,
 				balance: free,
 				rewards_amount: 0,
@@ -174,7 +174,7 @@ impl<T: Trait> Module<T> {
 				hash: hash,
 			};
 			BondTokenHash::<T>::insert(who.clone(), (hash.clone(), symbol.clone()));
-            FreeBondToken::<T>::insert(key, bond_tokne);
+            FreeBondToken::<T>::insert(key, bond_token);
         	Ok(())
     }
 
