@@ -31,7 +31,7 @@ pub enum Symbol {
 }
 impl Default for Symbol {
 	fn default() -> Symbol {
-		Symbol::XTZBOND
+		Symbol::XtzBond
 	}
 }
 
