@@ -10,18 +10,31 @@ use system::ensure_signed;
 use parity_codec::{Codec, Encode, Decode};
 use sr_primitives::traits::MaybeSerializeDebug;
 use runtime_primitives::traits::Hash;
+use stafi_primitives::{ Balance}; 
+use srml_timestamp as timestamp;
 
 pub type SymbolString = &'static [u8];
 pub type DescString = SymbolString;
 
-pub trait Trait: balances::Trait {
+pub trait Trait: balances::Trait+timestamp::Trait {
 	const STAFI_SYMBOL: SymbolString;
     const STAFI_TOKEN_DESC: DescString;
 	type TokenBalance: Parameter + Codec + Default + Copy + MaybeSerializeDebug + From<Self::BlockNumber>;
 	type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
 }
 
-pub type Symbol = u16;
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
+pub enum Symbol {
+	XTZ,
+	ATOM,
+}
+impl Default for Symbol {
+	fn default() -> Symbol {
+		Symbol::XTZ
+	}
+}
+
 pub type TokenDesc = Vec<u8>;
 pub type Precision = u16;
 
@@ -33,19 +46,17 @@ pub struct Token {
     precision: Precision,
 }
 
-pub type BondBalance = u16;
 pub type RewardsAmount = u16;
 //pub type AccountId = Vec<u8>;
-pub type StakingTime = u16;
 
 #[derive(PartialEq, Eq, Clone, Encode, Decode, Default)]
 #[cfg_attr(feature = "std", derive( Debug))]
-pub struct BondToken<AccountId, Hash> {
+pub struct BondToken<Moment, AccountId, Hash> {
 	symbol: Symbol,
-	balance: BondBalance,
+	balance: Balance,
 	rewards_amount: RewardsAmount,
 	account_id: AccountId,
-	staking_time: StakingTime,
+	staking_time: Moment,
 	hash: Hash,
 }
 
@@ -84,9 +95,9 @@ decl_storage! {
 
         pub FreeToken get(token_free_balance): map (T::AccountId, Symbol) => T::TokenBalance;
 
-		pub FreeBondToken get(bond_token_free_balance): map (T::AccountId, T::Hash) => BondToken<T::AccountId, T::Hash>;
-
-
+		pub FreeBondToken get(bond_token_free_balance): map (T::AccountId, T::Hash) => BondToken<T::Moment, T::AccountId, T::Hash>;
+		
+		pub BondTokenHash get(bond_token_hash): map T::AccountId => Option<(T::Hash, Symbol)>;
         //pub TokenListOf get(token_list_of): map T::AccountId => Vec<Symbol> = [T::STAFI_SYMBOL.to_vec()].to_vec();
 	}
 }
@@ -128,24 +139,12 @@ decl_module! {
 		pub fn set_free_bond_token(
             origin, 
             sym: Symbol, 
-            free: BondBalance,
-			staking_time: StakingTime
+            free: Balance
             ) -> Result {
             let who = ensure_signed(origin)?;
-			let random_seed = <system::Module<T>>::random_seed();
-            let hash = (random_seed, &who).using_encoded(<T as system::Trait>::Hashing::hash);
-			let key = (who.clone(), hash.clone());
-			let bond_tokne = BondToken{
-				symbol: sym,
-				balance: free,
-				rewards_amount: 0,
-				account_id: who.clone(),
-				staking_time: staking_time,
-				hash: hash,
-			};
-            FreeBondToken::<T>::insert(key, bond_tokne);
-			Self::deposit_event(RawEvent::FreeBondTokenStored(sym.clone(), who.clone()));
-            Ok(())
+			Self::add_bond_token(who.clone(), sym, free);
+			Self::deposit_event(RawEvent::FreeBondTokenStored(sym.clone(), who));
+			Ok(())
         }
 	}
 }
@@ -159,6 +158,28 @@ decl_event!(
 		FreeBondTokenStored(Symbol, AccountId),
 	}
 );
+
+impl<T: Trait> Module<T> {
+	fn add_bond_token(who: T::AccountId, symbol: Symbol, free: Balance) -> Result {
+        	let random_seed = <system::Module<T>>::random_seed();
+            let hash = (random_seed, &who).using_encoded(<T as system::Trait>::Hashing::hash);
+			let key = (who.clone(), hash.clone());
+			let _now = <timestamp::Module<T>>::get();
+			let bond_tokne = BondToken{
+				symbol: symbol,
+				balance: free,
+				rewards_amount: 0,
+				account_id: who.clone(),
+				staking_time: _now,
+				hash: hash,
+			};
+			BondTokenHash::<T>::insert(who.clone(), (hash.clone(), symbol.clone()));
+            FreeBondToken::<T>::insert(key, bond_tokne);
+        	Ok(())
+    }
+
+
+}
 
 /// tests for this module
 #[cfg(test)]
