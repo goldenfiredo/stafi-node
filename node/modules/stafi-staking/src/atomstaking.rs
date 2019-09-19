@@ -1,5 +1,6 @@
 extern crate srml_system as system;
 
+
 use srml_support::{decl_module, decl_storage, decl_event, StorageMap, StorageLinkedMap, ensure, dispatch::Result};
 use system::ensure_signed;
 use sr_std::prelude::*;
@@ -7,6 +8,7 @@ use sr_primitives::traits::Hash;
 use parity_codec::{Encode, Decode};
 use stafi_primitives::StakeTokenType;
 use log::info;
+
 
 type AuthorityIdFor<T> = <T as im_online::Trait>::AuthorityId;
 
@@ -78,7 +80,7 @@ pub struct AtomTransferData<AccountId, Hash> {
 	pub signatures: Vec<u8>,
 }
 
-pub trait Trait: system::Trait + session::Trait + im_online::Trait {
+pub trait Trait: system::Trait + session::Trait + im_online::Trait + token_balances::Trait {
 	/// The overarching event type.
 	type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
 }
@@ -255,6 +257,8 @@ impl<T: Trait> Module<T> {
 					<StakeRecords<T>>::insert((account_id.clone(), hash.clone()), atom_stake_data);
 
 					<StakingDataRecords<T>>::remove((account_id.clone(), hash.clone()));
+
+					// token_balances::Module::<T>::add_free_bond_token(account_id.clone(), 2, 10, 10);
 				}
 			}
 		}

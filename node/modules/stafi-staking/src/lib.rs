@@ -24,4 +24,3 @@ pub use atomstaking::{AtomStakeStage, AtomStakeTokenData, AtomStakeData};
 pub mod xtzstaking;
 pub use xtzstaking::{Module as XtzModule, Trait as XtzTrait, RawEvent as XtzRawEvent, Event as XtzEvent};
 pub use xtzstaking::{XtzStakeStage, XtzStakeTokenData, XtzStakeData};
-

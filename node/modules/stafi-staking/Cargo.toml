@@ -21,7 +21,7 @@ session = { package = "srml-session", git = "https://github.com/stafiprotocol/st
 im-online = { package = "srml-im-online", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 
 stafi-primitives = { path = "../../primitives", default-features = false }
-token-balances = { path = "../tokenbalances", default-features = false }
+token-balances = { package = "tokenbalances", path = "../tokenbalances", default-features = false }
 log = "0.4"
 
 [features]

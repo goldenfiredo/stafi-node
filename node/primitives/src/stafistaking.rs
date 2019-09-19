@@ -11,3 +11,9 @@ pub enum StakeTokenType {
 	// cosmos token
 	ATOM
 }
+
+impl Default for StakeTokenType {
+	fn default() -> StakeTokenType {
+		StakeTokenType::FIS
+	}
+}
