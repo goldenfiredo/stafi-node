@@ -8,7 +8,7 @@ use sr_primitives::traits::Hash;
 use parity_codec::{Encode, Decode};
 use stafi_primitives::StakeTokenType;
 use log::info;
-
+use token_balances::Symbol;
 
 type AuthorityIdFor<T> = <T as im_online::Trait>::AuthorityId;
 
@@ -258,7 +258,7 @@ impl<T: Trait> Module<T> {
 
 					<StakingDataRecords<T>>::remove((account_id.clone(), hash.clone()));
 
-					// token_balances::Module::<T>::add_free_bond_token(account_id.clone(), 2, 10, 10);
+					token_balances::Module::<T>::add_bond_token(account_id.clone(), Symbol::ATOM, 10);
 				}
 			}
 		}

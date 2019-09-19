@@ -160,7 +160,7 @@ decl_event!(
 );
 
 impl<T: Trait> Module<T> {
-	fn add_bond_token(who: T::AccountId, symbol: Symbol, free: Balance) -> Result {
+	pub fn add_bond_token(who: T::AccountId, symbol: Symbol, free: Balance) -> Result {
         	let random_seed = <system::Module<T>>::random_seed();
             let hash = (random_seed, &who).using_encoded(<T as system::Trait>::Hashing::hash);
 			let key = (who.clone(), hash.clone());
