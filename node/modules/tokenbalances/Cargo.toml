@@ -19,6 +19,7 @@ sr-primitives = { git = "https://github.com/stafiprotocol/stafi-blockchain", def
 srml-support = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 srml-system = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 srml-balances = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
+srml-timestamp = { git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 
 stafi-primitives = { path = "../../primitives", default-features = false }
 
@@ -37,4 +38,5 @@ std = [
     "srml-system/std",
     "srml-balances/std",
     "stafi-primitives/std",
+    "srml-timestamp/std",
 ]
