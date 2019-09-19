@@ -73,6 +73,3 @@ client::decl_runtime_apis! {
 	}
 }
 
-pub mod tokenbarances;
-pub use tokenbarances::{Symbol};
-

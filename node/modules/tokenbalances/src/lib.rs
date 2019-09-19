@@ -10,7 +10,7 @@ use system::ensure_signed;
 use parity_codec::{Codec, Encode, Decode};
 use sr_primitives::traits::MaybeSerializeDebug;
 use runtime_primitives::traits::Hash;
-use stafi_primitives::{Symbol, Balance}; 
+use stafi_primitives::{ Balance}; 
 use srml_timestamp as timestamp;
 
 pub type SymbolString = &'static [u8];
@@ -21,6 +21,18 @@ pub trait Trait: balances::Trait+timestamp::Trait {
     const STAFI_TOKEN_DESC: DescString;
 	type TokenBalance: Parameter + Codec + Default + Copy + MaybeSerializeDebug + From<Self::BlockNumber>;
 	type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
+}
+
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
+pub enum Symbol {
+	XTZ,
+	ATOM,
+}
+impl Default for Symbol {
+	fn default() -> Symbol {
+		Symbol::XTZ
+	}
 }
 
 pub type TokenDesc = Vec<u8>;
