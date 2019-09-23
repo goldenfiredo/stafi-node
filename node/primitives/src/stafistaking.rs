@@ -1,14 +1,15 @@
 use parity_codec::{Encode, Decode};
 
 
+/// Stake token type.
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
 pub enum StakeTokenType {
-	// stafi token
+	/// stafi token
 	FIS,
-	// tezos token
+	/// tezos token
 	XTZ,
-	// cosmos token
+	/// cosmos token
 	ATOM
 }
 

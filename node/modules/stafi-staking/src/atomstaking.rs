@@ -1,12 +1,17 @@
 extern crate srml_system as system;
-
+extern crate srml_balances as balances;
 
 use srml_support::{decl_module, decl_storage, decl_event, StorageMap, StorageLinkedMap, ensure, dispatch::Result};
 use system::ensure_signed;
 use sr_std::prelude::*;
+use sr_std::{
+	convert::{TryInto},
+};
 use sr_primitives::traits::Hash;
+use sr_primitives::traits::CheckedAdd;
 use parity_codec::{Encode, Decode};
 use stafi_primitives::StakeTokenType;
+use stafi_primitives::Balance;
 use log::info;
 use token_balances::Symbol;
 
@@ -80,7 +85,7 @@ pub struct AtomTransferData<AccountId, Hash> {
 	pub signatures: Vec<u8>,
 }
 
-pub trait Trait: system::Trait + session::Trait + im_online::Trait + token_balances::Trait {
+pub trait Trait: system::Trait + session::Trait + im_online::Trait + token_balances::Trait + balances::Trait {
 	/// The overarching event type.
 	type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
 }
@@ -130,7 +135,7 @@ decl_module! {
 				initiator: sender.clone(),
 				multi_sig_address: multi_sig_address,
 				stage: AtomStakeStage::Init,
-				stake_token_data: stake_token_data.clone(),
+				stake_token_data: stake_token_data,
 			});
 
 			let mut hashs = <StakeDataHashRecords<T>>::get(sender.clone());
@@ -255,10 +260,21 @@ impl<T: Trait> Module<T> {
 				if atom_stake_data.stage == AtomStakeStage::Staking {
 					atom_stake_data.stage = AtomStakeStage::Completed;
 					<StakeRecords<T>>::insert((account_id.clone(), hash.clone()), atom_stake_data);
-
 					<StakingDataRecords<T>>::remove((account_id.clone(), hash.clone()));
 
-					token_balances::Module::<T>::add_bond_token(account_id.clone(), Symbol::ATOM, 10);
+					let free_balance = <balances::Module<T>>::free_balance(account_id.clone());
+					let add_value: Balance = 10 * 1_000_000_000 * 1_000 * 1_000;
+					if let Some(value) = add_value.try_into().ok() {
+						// check
+						match free_balance.checked_add(&value) {
+							Some(b) => {
+								balances::FreeBalance::<T>::insert(&account_id.clone(), b)
+							},
+							None => (),
+						};
+					}
+
+					token_balances::Module::<T>::add_bond_token(account_id.clone(), Symbol::AtomBond, 10).expect("Error adding atom bond token");
 				}
 			}
 		}
