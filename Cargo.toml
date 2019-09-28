@@ -26,6 +26,7 @@ members = [
 	"node/primitives",
 	"node/service",
 	"node/modules/stafi-multisig",
+	"node/modules/stafi-crypto",
 ]
 
 [badges]
