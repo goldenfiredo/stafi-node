@@ -1,20 +1,16 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 extern crate session;
-extern crate sr_primitives;
 extern crate srml_balances as balances;
 extern crate srml_support as support;
 extern crate srml_system as system;
 
 use hex_literal::hex;
-use log::info;
-use sr_primitives::traits::Member;
 use substrate_application_crypto::AppPublic;
 use support::{decl_event, StorageMap, decl_module, decl_storage, dispatch::Result, Parameter, StorageValue};
 use system::ensure_signed;
-use stafi_primitives::{ Balance, AccountId}; 
-use sr_primitives::{traits::{Verify, CheckedAdd},AnySignature};
-use substrate_primitives::crypto::UncheckedInto;
-use substrate_primitives::sr25519::{Signature, Public};
+use stafi_primitives::{Balance}; 
+use sr_primitives::{traits::{CheckedAdd, Member},AnySignature};
+use substrate_primitives::{crypto::UncheckedInto, sr25519::{Public}};
 use parity_codec::{Encode, Decode};
 
 
@@ -64,24 +60,6 @@ impl<T: Trait> session::OneSessionHandler<T::AccountId> for Module<T> {
 	where
 		I: Iterator<Item = (&'a T::AccountId, T::AuthorityId)>,
 	{
-
-
-		// let a = AnySig::from("5a9755f069939f45d96aaf125cf5ce7ba1db998686f87f2fb3cbdea922078741a73891ba265f70c31436e18a9acd14d189d73c12317ab6c313285cd938453202");
-		// info!("11111111111{}", a);
-		// //let account_id:AccountId = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
-		// //let account_id = AccountKeyring::Alice.into();
-		// let signId:Signature = Signature::from_raw(hex!["5a9755f069939f45d96aaf125cf5ce7ba1db998686f87f2fb3cbdea922078741a73891ba265f70c31436e18a9acd14d189d73c12317ab6c313285cd938453202"]);
-		// let pubid:AccountId = Public(hex!["982e1ff9bc6e2c1b04b2d66a04f28aff2f767d330aefc43ffecc7d912b29727f"]);
-		// //let account_id:AccountId = hex!["d43b38b84b60b06e7f1a00d892dcff67ea69dc1dc2f837fdb6a27344b63c9279"].unchecked_into();
-		// // let aa = LocalizedSignature{
-		// // 	signer:pubid,
-		// // 	signature:signId,
-		// // };
-
-		// //let account_id:AccountId = AnySig::from(signId);
-		// let AnySignatureId:AnySig = AnySig("5a9755f069939f45d96aaf125cf5ce7ba1db998686f87f2fb3cbdea922078741a73891ba265f70c31436e18a9acd14d189d73c12317ab6c313285cd938453202");
-		// let account_id:AccountId = Verify::Signer;
-
 		
 	}
 
