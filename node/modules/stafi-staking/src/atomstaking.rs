@@ -15,7 +15,6 @@ use stafi_primitives::Balance;
 use log::info;
 use token_balances::Symbol;
 
-type AuthorityIdFor<T> = <T as im_online::Trait>::AuthorityId;
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Copy, Clone, Eq, PartialEq)]
@@ -85,7 +84,7 @@ pub struct AtomTransferData<AccountId, Hash> {
 	pub signatures: Vec<u8>,
 }
 
-pub trait Trait: system::Trait + session::Trait + im_online::Trait + token_balances::Trait + balances::Trait {
+pub trait Trait: system::Trait + session::Trait + im_online::Trait + token_balances::Trait {
 	/// The overarching event type.
 	type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
 }
@@ -165,7 +164,7 @@ decl_event!(
 
 
 impl<T: Trait> session::OneSessionHandler<T::AccountId> for Module<T> {
-	type Key = AuthorityIdFor<T>;
+	type Key = T::AuthorityId;
 
 	fn on_genesis_session<'a, I: 'a>(_validators: I)
 	where
