@@ -22,6 +22,7 @@
 
 use stafi_multisig::*;
 use tokenbalances;
+use stafi_fund;
 
 use rstd::prelude::*;
 use support::{
@@ -195,7 +196,7 @@ impl authorship::Trait for Runtime {
 	type EventHandler = Staking;
 }
 
-type SessionHandlers = (Grandpa, Babe, ImOnline, AuthorityDiscovery);
+type SessionHandlers = (Grandpa, Babe, ImOnline, AuthorityDiscovery, Stafifund);
 
 impl_opaque_keys! {
 	pub struct SessionKeys {
@@ -447,6 +448,11 @@ impl tokenbalances::Trait for Runtime {
 	type TokenBalance = u128;
 }
 
+impl stafi_fund::Trait for Runtime {
+	type Event = Event;
+	type AuthorityId = BabeId;
+}
+
 impl system::offchain::CreateTransaction<Runtime, UncheckedExtrinsic> for Runtime {
 	type Signature = Signature;
 
@@ -503,6 +509,7 @@ construct_runtime!(
 		AuthorityDiscovery: authority_discovery::{Module, Call, Config<T>},
 		Offences: offences::{Module, Call, Storage, Event},
 		Tokenbalances: tokenbalances::{Module, Call, Storage, Event<T>},
+		Stafifund: stafi_fund::{Module, Call, Storage, Event<T>},
 		MultiSig: stafi_multisig::{Module, Call, Storage, Event<T>},
 	}
 );
