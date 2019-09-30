@@ -32,6 +32,7 @@ indices = { package = "srml-indices", git = "https://github.com/stafiprotocol/st
 membership = { package = "srml-membership", git ="https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 session = { package = "srml-session", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false, features = ["historical"] }
 staking = { package = "srml-staking", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
+srml-staking-reward-curve = { git = "https://github.com/stafiprotocol/stafi-blockchain"}
 system = { package = "srml-system", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 timestamp = { package = "srml-timestamp", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
 treasury = { package = "srml-treasury", git = "https://github.com/stafiprotocol/stafi-blockchain", default-features = false }
@@ -54,9 +55,6 @@ wasm-builder-runner = { package = "substrate-wasm-builder-runner", version = "1.
 
 [features]
 default = ["std"]
-no_std = [
-	"contracts/core",
-]
 std = [
 	"authority-discovery-primitives/std",
 	"authority-discovery/std",

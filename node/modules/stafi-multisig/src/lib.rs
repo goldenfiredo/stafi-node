@@ -59,7 +59,7 @@ use rstd::prelude::*;
 use rstd::result::Result as StdResult;
 use runtime_primitives::traits::Hash;
 use runtime_support::dispatch::Result;
-use runtime_support::{traits::Currency, StorageMap, StorageValue};
+use runtime_support::{traits::Currency};
 use substrate_primitives::crypto::{UncheckedFrom, UncheckedInto};
 
 use system::ensure_signed;

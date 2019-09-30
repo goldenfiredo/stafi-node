@@ -4,7 +4,7 @@ extern crate srml_support as support;
 extern crate srml_system as system;
 extern crate srml_balances as balances;
 
-use support::{decl_module, decl_storage, decl_event, StorageValue, StorageMap, dispatch::Result, Parameter, dispatch::Vec};
+use support::{decl_module, decl_storage, decl_event, dispatch::Result, Parameter, dispatch::Vec};
 use system::ensure_signed;
 use parity_codec::{Codec, Encode, Decode};
 use sr_primitives::traits::MaybeSerializeDebug;

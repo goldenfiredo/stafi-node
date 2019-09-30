@@ -35,7 +35,7 @@ pub use cli::{ExecutionStrategyParam, IntoExit, NoCustom, SharedParams, VersionI
 use client::ExecutionStrategies;
 use log::info;
 use structopt::{clap::App, StructOpt, clap::AppSettings};
-use substrate_service::{AbstractService, Roles as ServiceRoles};
+use substrate_service::{AbstractService, Roles as ServiceRoles, Configuration};
 use tokio::prelude::Future;
 use tokio::runtime::{Builder as RuntimeBuilder, Runtime};
 use transaction_factory::RuntimeAdapter;
@@ -182,6 +182,8 @@ where
     T: Into<std::ffi::OsString> + Clone,
     E: IntoExit,
 {
+    type Config<A, B> = Configuration<(), A, B>;
+
     let args_vec: Vec<_> = args.into_iter().collect();
     let mut args_vec_copy: Vec<_> = args_vec.clone().into_iter().filter_map(|x| x.into().into_string().ok()).collect();
     let matches = CoreParams::<CustomSubcommands, StafiCustom>::clap()
@@ -199,8 +201,8 @@ where
     }    
 
     match parse_and_prepare::<CustomSubcommands, StafiCustom, _>(&version, "substrate-node", args_vec_copy) {
-        ParseAndPrepare::Run(cmd) => cmd.run::<(), _, _, _, _>(load_spec, exit,
-        |exit, _cli_args, _custom_args, config| {
+        ParseAndPrepare::Run(cmd) => cmd.run(load_spec, exit,
+        |exit, _cli_args, _custom_args, config: Config<_, _>| {
             info!("{}", version.name);
             info!("  version {}", config.full_version());
             info!("  by {}, 2018-2019", version.author);
@@ -227,15 +229,19 @@ where
         }),
 
         ParseAndPrepare::BuildSpec(cmd) => cmd.run(load_spec),
-        ParseAndPrepare::ExportBlocks(cmd) => cmd.run_with_builder::<(), _, _, _, _, _>(|config|
+        ParseAndPrepare::ExportBlocks(cmd) => cmd.run_with_builder(|config: Config<_, _>|
 			Ok(new_full_start!(config).0), load_spec, exit),
-		ParseAndPrepare::ImportBlocks(cmd) => cmd.run_with_builder::<(), _, _, _, _, _>(|config|
+		ParseAndPrepare::ImportBlocks(cmd) => cmd.run_with_builder(|config: Config<_, _>|
 			Ok(new_full_start!(config).0), load_spec, exit),
         ParseAndPrepare::PurgeChain(cmd) => cmd.run(load_spec),
-        ParseAndPrepare::RevertChain(cmd) => cmd.run_with_builder::<(), _, _, _, _>(|config|
+        ParseAndPrepare::RevertChain(cmd) => cmd.run_with_builder(|config: Config<_, _>|
 			Ok(new_full_start!(config).0), load_spec),
         ParseAndPrepare::CustomCommand(CustomSubcommands::Factory(cli_args)) => {
-            let mut config = cli::create_config_with_db_path::<(), _, _>(load_spec, &cli_args.shared_params, &version)?;
+            let mut config: Config<_, _> = cli::create_config_with_db_path(
+				load_spec,
+				&cli_args.shared_params,
+				&version,
+			)?;
             config.execution_strategies = ExecutionStrategies {
                 importing: cli_args.execution.into(),
                 block_construction: cli_args.execution.into(),

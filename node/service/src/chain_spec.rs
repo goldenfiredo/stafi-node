@@ -14,16 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Stafi.  If not, see <http://www.gnu.org/licenses/>
 
+use chain_spec::ChainSpecExtension;
 use primitives::{Pair, Public};
-pub use stafi_primitives::{AccountId, Balance};
+use serde::{Serialize, Deserialize};
 use stafi_runtime::{
 	AuthorityDiscoveryConfig, BabeConfig, BalancesConfig, ContractsConfig, CouncilConfig, DemocracyConfig,
 	ElectionsConfig, GrandpaConfig, ImOnlineConfig, IndicesConfig,
 	SessionConfig,	SessionKeys, StakerStatus, StakingConfig, SudoConfig, SystemConfig,
 	TechnicalCommitteeConfig, WASM_BINARY,
 };
+use stafi_runtime::Block;
 use stafi_runtime::constants::{time::*, currency::*};
-pub use stafi_runtime::GenesisConfig;
 use substrate_service;
 use substrate_telemetry::TelemetryEndpoints;
 use grandpa_primitives::{AuthorityId as GrandpaId};
@@ -32,11 +33,28 @@ use im_online::sr25519::{AuthorityId as ImOnlineId};
 use sr_primitives::Perbill;
 use crate::fixtures::*;
 
+pub use stafi_primitives::{AccountId, Balance};
+pub use stafi_runtime::GenesisConfig;
+
+
 const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 const DEFAULT_PROTOCOL_ID: &str = "sfi";
 
+/// Node `ChainSpec` extensions.
+///
+/// Additional parameters for some Substrate core modules,
+/// customizable from the chain spec.
+#[derive(Default, Clone, Serialize, Deserialize, ChainSpecExtension)]
+pub struct Extensions {
+	/// Block numbers with known hashes.
+	pub fork_blocks: client::ForkBlocks<Block>,
+}
+
 /// Specialized `ChainSpec`.
-pub type ChainSpec = substrate_service::ChainSpec<GenesisConfig>;
+pub type ChainSpec = substrate_service::ChainSpec<
+	GenesisConfig,
+	Extensions,
+>;
 
 pub fn stafi_config() -> Result<ChainSpec, String> {
 	ChainSpec::from_json_bytes(&include_bytes!("../../../testnets/v0.1.0/stafi.json")[..])
@@ -69,7 +87,8 @@ pub fn stafi_testnet_config() -> ChainSpec {
         Some(TelemetryEndpoints::new(vec![(STAGING_TELEMETRY_URL.to_string(), 0)])),
         Some(DEFAULT_PROTOCOL_ID),
         None,
-        None)
+        Default::default(),
+	)
 }
 
 fn session_keys(grandpa: GrandpaId, babe: BabeId, im_online: ImOnlineId) -> SessionKeys {
@@ -212,7 +231,8 @@ pub fn development_config() -> ChainSpec {
         None,
         Some(DEFAULT_PROTOCOL_ID),
         None,
-        None)
+        Default::default(),
+	)
 }
 
 fn local_testnet_genesis() -> GenesisConfig {
@@ -236,5 +256,6 @@ pub fn local_testnet_config() -> ChainSpec {
         None,
         Some(DEFAULT_PROTOCOL_ID),
         None,
-        None)
+        Default::default(),
+	)
 }

@@ -31,14 +31,13 @@ use sr_primitives::{
     traits::{Block as BlockT, Header as HeaderT, SignedExtension},
 };
 use stafi_runtime::{
-    BalancesCall, Call, CheckedExtrinsic, ExistentialDeposit, SignedExtra, UncheckedExtrinsic,
+	Call, CheckedExtrinsic, UncheckedExtrinsic, SignedExtra, BalancesCall, ExistentialDeposit,
+	MinimumPeriod,
 };
 use timestamp;
 use transaction_factory::modes::Mode;
 use transaction_factory::RuntimeAdapter;
 
-// TODO get via api: <T as timestamp::Trait>::MinimumPeriod::get(). See #2587.
-const MINIMUM_PERIOD: u64 = 99;
 
 pub struct FactoryState<N> {
     block_no: N,
@@ -153,7 +152,7 @@ impl RuntimeAdapter for FactoryState<Number> {
 	}
 
     fn inherent_extrinsics(&self) -> InherentData {
-        let timestamp = self.block_no as u64 * MINIMUM_PERIOD;
+        let timestamp = (self.block_no as u64 + 1) * MinimumPeriod::get();
 
         let mut inherent = InherentData::new();
         inherent
@@ -166,7 +165,6 @@ impl RuntimeAdapter for FactoryState<Number> {
     }
 
     fn minimum_balance() -> Self::Balance {
-        // TODO get correct amount via api. See #2587.
         ExistentialDeposit::get()
     }
 
